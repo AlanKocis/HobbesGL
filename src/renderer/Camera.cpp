@@ -6,7 +6,7 @@ Camera::Camera(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& 
 	c_position = pos;
 	c_forward = forward;
 	c_up = up;
-	updateVectors();
+	//updateVectors();
 }
 
 void Camera::updateVectors()

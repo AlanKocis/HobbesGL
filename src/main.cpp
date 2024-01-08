@@ -1,33 +1,36 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#include "renderer/Shader.h"
 #include <cmath>
-#include <stb_image.h>
+#include "stb_image.h"
 #include <glm/glm.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "helpers/vertices.h"
+#include "helpers/lights.h"
 #include <iostream>
 #include <vector>
 #include <iomanip>
-#include <fstream>
-
-#include "renderer/Shader.h"
-#include "renderer/Camera.h"
-#include "renderer/Renderer.h"
-#include "helpers/vertices.h"
-#include "helpers/lights.h"
-#include <helpers/RootDir.h>
-
+#include "renderer/Texture2D.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void updateCameraTransform(glm::mat4& viewMatrix);
 void printMat(const glm::mat4& mat, const int& size);
 glm::mat4 genNormalTransform(const glm::mat4& transform);
 
 const glm::mat4 Identity(1.0f);
+
+struct
+{
+	glm::vec3 position;
+	glm::vec3 forwardVec;
+	glm::vec3 upVec;
+	glm::vec3 rightVec;
+
+}typedef camera;
 
 
 struct
@@ -45,12 +48,13 @@ float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
+camera cam;
 
-Camera fpsCam(glm::vec3(0, 0, 3), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+
+
 eulers mouseAngles{ 0.0f, -90.0f, 0 };
-
 bool firstMouse = true;
-
+float funFloat = 1;
 
 int main()
 {
@@ -59,7 +63,12 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Hobbes-1.1", NULL, NULL);
+
+
+
+
+
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "rank1 KR openGL window", NULL, NULL);
 	if (!window)
 	{
 		std::cout << "window failed\n";
@@ -84,50 +93,79 @@ int main()
 
 
 
+	cam.position = glm::vec3(0.0f, 0.0f, 5.0f);
+	cam.upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+	cam.rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
+	cam.forwardVec = glm::vec3(0.0f, 0.0f, -1.0f);
 
-	unsigned int vao, vbo;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_pos_normal_tex), cube_pos_normal_tex, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-	//glEnableVertexAttribArray(2);
 
-	spotLight flashLight
-	{
-		glm::vec3(0.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f),
-		glm::vec3(0.3f),
-		glm::vec3(1.0f),
-		glm::vec3(1.5f),
-		glm::radians(5.0f),
-		glm::radians(14.0f),
-		1.0f,
-		0.09f,
-		0.032f
-	};
 
-	Shader* phong = new Shader("basic_vert.glsl", "basic_frag.glsl");
-	phong->use();
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-	phong->setMat4("proj", proj);
-
-	//
 	glEnable(GL_DEPTH_TEST);
 
+	unsigned int vbo, vao, lightVao;
+
+
+	glGenVertexArrays(1, &vao);
+	glGenVertexArrays(1, &lightVao);
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_pos_normal_tex), cube_pos_normal_tex, GL_STATIC_DRAW);
+
+	glBindVertexArray(vao);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	glBindVertexArray(lightVao);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
+	Texture2D diffuse("container2.png");
+	Texture2D specular("container2_specular.png");
+		
+
+	Shader lampShader("basic_vert.glsl", "light_source_frag.glsl");
+	Shader phongShader("vert_normals.glsl", "phong_frag.glsl");
+
+	glActiveTexture(GL_TEXTURE0);
+	diffuse.bind();
+	phongShader.use();
+	phongShader.setInt("material.diffuse", 0);
+	glActiveTexture(GL_TEXTURE1);
+	specular.bind();
+	phongShader.setInt("material.specular", 1);
+
+
+
+	glm::mat4 cameraTransform;
+
+
+	glm::mat4 worldTransform = glm::mat4(1.0f);
+	worldTransform = glm::translate(worldTransform, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	glm::mat4 cube2WorldTransform = glm::mat4(1.0f);
+	cube2WorldTransform = glm::translate(cube2WorldTransform, glm::vec3(1.0f, 0.0f, -2.0f));
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+	glm::mat4 glmCam = glm::lookAt(cam.position, glm::vec3(0.0f, 0.0f, 0.0f), cam.upVec);
+
+
+	glm::vec4 lightPos(0.0f, 0.3f, 3.0f, 1.0f);
+
+	//
 	while (!glfwWindowShouldClose(window))
 	{
-
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - lastFrame;
+
 		lastFrame = currentTime;
 		float fps = 1000 / deltaTime;
+
 		int f = (int)fps;
 		std::ostringstream ss;
 		ss << "fps " << f;
@@ -135,23 +173,135 @@ int main()
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		processInput(window);
 
-	
+		updateCameraTransform(cameraTransform);
 
+
+
+
+
+
+		// cube
 		glm::vec3 cubePos(0.0f, 0.0f, -3.0f);
-		glm::mat4 cubeTransform = glm::translate(Identity, cubePos);
+		glm::mat4 cubeTransform(1.0f);
+		glm::mat3 normalTransform;
+		cubeTransform = glm::translate(cubeTransform, cubePos);
 
-		fpsCam.updateCameraTransform();
-		phong->setMat4("view", fpsCam.c_viewMat);
-		phong->setMat4("world", cubeTransform);
+		//normalTransform = glm::transpose(glm::inverse(cameraTransform * cubeTransform));
+		//more expensive way (lol):
+		normalTransform = genNormalTransform(cameraTransform * cubeTransform);
 
-		glBindVertexArray(vao);
+
+		//define some lights
+
+		//yellow light:
+		dirLight yellowDirLight
+		{
+			glm::vec3(1.0f, -1.0f, -1.0f),
+			glm::vec3(0.1f),
+			glm::vec3(1.5f, 1.0f, 0.0f),
+			glm::vec3(1.0f),
+		};
+
+		dirLight redDirLight
+		{
+			glm::vec3(-1.0f, 0.5f, -1.0f),
+			glm::vec3(0.4f),
+			glm::vec3(0.7f, 0.0f, 0.0f),
+			glm::vec3(1.0f),
+		};
+
+		pointLight bluePointLight
+		{
+			glm::vec3(1.0f, 0.5f, 1.0f),
+			glm::vec3(0.3f),
+			glm::vec3(0.0f, 0.0f, 10.0f),
+			glm::vec3(1.0f),
+			1.0f,
+			0.009f,
+			0.0032f
+		};
+
+		spotLight flashLight
+		{
+			glm::vec3(0, 0, 0),
+			glm::vec3(0, 0, -1),
+			glm::vec3(0.0f),
+			glm::vec3(1.0f),
+			glm::vec3(1.0f),
+			glm::cos(glm::radians(5.0f)),
+			glm::cos(glm::radians(10.0f)),
+			1.0f,
+			0.9f,
+			0.32f
+		};
+
+		glm::mat4 sinTransform(1.0f);
+		sinTransform = glm::translate(sinTransform, glm::vec3(0.0f, 0.0f, -1.0f * sin(5.0f * glfwGetTime())));
+		bluePointLight.lightPos = sinTransform * glm::vec4(bluePointLight.lightPos, 1.0f);
+
+		//render light sources
+
+		lampShader.use();
+		lampShader.setMat4("view", cameraTransform);
+		lampShader.setMat4("proj", proj);
+
+		//set color and world matrix for each light source.
+		glm::mat4 scaleI = glm::scale(Identity, glm::vec3(0.3f));
+		glm::mat4 lightTransform = glm::translate(scaleI, -20.0f * yellowDirLight.lightDir);
+
+		lampShader.setMat4("world", lightTransform);
+		lampShader.setVec3("lightColor", yellowDirLight.diffuse);
+		glBindVertexArray(lightVao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-	
-		
-		
+
+		lightTransform = glm::translate(scaleI, -20.0f * redDirLight.lightDir);
+		lampShader.setMat4("world", lightTransform);
+		lampShader.setVec3("lightColor", redDirLight.diffuse);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		lightTransform = glm::translate(scaleI, bluePointLight.lightPos);
+		lampShader.setMat4("world", lightTransform);
+		lampShader.setVec3("lightColor", bluePointLight.diffuse);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+		// change light source vectors to view space
+		yellowDirLight.lightDir = cameraTransform * glm::vec4(yellowDirLight.lightDir, 0.0f);
+		redDirLight.lightDir = cameraTransform * glm::vec4(redDirLight.lightDir, 0.0f);
+		bluePointLight.lightPos = cameraTransform * glm::vec4(bluePointLight.lightPos, 1.0f);
+
+		phongShader.use();
+		phongShader.setDirLight("directional_lights[0]", yellowDirLight);
+		phongShader.setDirLight("directional_lights[1]", redDirLight);
+		phongShader.setSpotLight("spot_lights[0]", flashLight);
+		phongShader.setPointLight("point_lights[0]", bluePointLight);
+
+		phongShader.setInt("NUM_DIR_LIGHTS", 2);
+		phongShader.setInt("NUM_POINT_LIGHTS", 1);
+		phongShader.setInt("NUM_SPOT_LIGHTS", 1);
+
+		phongShader.setFloat("material.shininess", 16.0f);
+		phongShader.setMat4("view", cameraTransform);
+		phongShader.setMat4("proj", proj);
+		phongShader.setMat4("normalTransform", normalTransform);
+
+
+
+		//render objects
+
+
+
+		phongShader.use();
+		glBindVertexArray(vao);
+		for (int i = 0; i < 3; i++)
+		{
+			cubeTransform = glm::translate(cubeTransform, glm::vec3(0.0f, 0.0f, -1.0f));
+			normalTransform = genNormalTransform(cameraTransform * cubeTransform);
+			phongShader.setMat4("world", cubeTransform);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 
 
@@ -164,7 +314,9 @@ int main()
 
 
 
-	delete phong;
+
+
+
 
 	glfwTerminate();
 	return 0;
@@ -175,15 +327,53 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void updateCameraTransform(glm::mat4& viewMatrix)
+{
+	viewMatrix[0][0] = cam.rightVec.x;
+	viewMatrix[0][1] = cam.upVec.x;
+	viewMatrix[0][2] = -cam.forwardVec.x;
+	viewMatrix[0][3] = 0.0f;
 
+	viewMatrix[1][0] = cam.rightVec.y;
+	viewMatrix[1][1] = cam.upVec.y;
+	viewMatrix[1][2] = -cam.forwardVec.y;
+	viewMatrix[1][3] = 0.0f;
+
+	viewMatrix[2][0] = cam.rightVec.z;
+	viewMatrix[2][1] = cam.upVec.z;
+	viewMatrix[2][2] = -cam.forwardVec.z;
+	viewMatrix[2][3] = 0.0f;
+
+	viewMatrix[3][0] = glm::dot(-cam.position, cam.rightVec);
+	viewMatrix[3][1] = glm::dot(-cam.position, cam.upVec);
+	viewMatrix[3][2] = glm::dot(-cam.position, -cam.forwardVec);
+	viewMatrix[3][3] = 1.0f;
+}
 
 
 void processInput(GLFWwindow* window)
 {
+	float speed = (float)MOVE_SPEED * deltaTime;
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, 1);
-	float speed = (float)MOVE_SPEED * deltaTime;
-	fpsCam.processInput(window, speed);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam.position += speed * cam.forwardVec;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam.position -= speed * cam.forwardVec;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cam.position -= speed * glm::normalize(-glm::cross(cam.upVec, cam.forwardVec));
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cam.position += speed * glm::normalize(-glm::cross(cam.upVec, cam.forwardVec));
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		cam.position.y += speed;
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		cam.position.y -= speed;
+
+
+	//cam.position.y = 0.0f;
+
+
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -219,7 +409,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	camFront.y = sin(glm::radians(mouseAngles.pitch));
 	camFront.z = sin(glm::radians(mouseAngles.yaw)) * cos(glm::radians(mouseAngles.pitch));
 
-	fpsCam.setForward(glm::normalize(camFront));
+	cam.forwardVec = glm::normalize(camFront);
+	cam.rightVec = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), -cam.forwardVec));	//works when -cam.fo
+	cam.upVec = glm::cross(-cam.forwardVec, cam.rightVec);
+
+
 }
 
 void printMat(const glm::mat4& mat, const int& size)
