@@ -5,25 +5,35 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+enum CAM_DIRECTION
+{
+	FORWARD,
+	BACK,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN
+};
 
 class Camera
 {
 public:
-	glm::vec3 c_position;
-	glm::vec3 c_forward;
-	glm::vec3 c_up;
-	glm::vec3 c_right;
-	glm::mat4 c_viewMat;
+	glm::vec3 position;
+	glm::vec3 forward;
+	glm::vec3 up;
+	glm::vec3 right;
 
-	Camera(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& up);
+	float pitch;
+	float yaw;
+	float roll;
 
+	float MOUSE_SENSITIVIY = 0.1f;
+
+	Camera(const glm::vec3& _pos, const glm::vec3& _forward, const glm::vec3& _worldUp);
 	void updateVectors();
-
-	void setForward(const glm::vec3& forward);
-
-	void processInput(GLFWwindow* window, const float& speed);
-
-	void updateCameraTransform();
-
+	void processKeyboardInput(const CAM_DIRECTION& direction, const float& speed);
+	void processMouseInput(const double& xOffset, const double& yOffset);
+	void genCameraMatrix(glm::mat4& matrix);
+	void debug_dump();
 
 };

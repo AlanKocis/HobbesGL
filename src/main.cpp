@@ -1,45 +1,33 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "renderer/Shader.h"
+
 #include <cmath>
-#include "stb_image.h"
+#include <stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "helpers/vertices.h"
-#include "helpers/lights.h"
+
 #include <iostream>
 #include <vector>
 #include <iomanip>
+
+#include "renderer/Shader.h"
 #include "renderer/Texture2D.h"
+#include "renderer/Camera.h"
+
+#include "helpers/vertices.h"
+#include "helpers/lights.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void updateCameraTransform(glm::mat4& viewMatrix);
 void printMat(const glm::mat4& mat, const int& size);
 glm::mat4 genNormalTransform(const glm::mat4& transform);
 
+
+
 const glm::mat4 Identity(1.0f);
-
-struct
-{
-	glm::vec3 position;
-	glm::vec3 forwardVec;
-	glm::vec3 upVec;
-	glm::vec3 rightVec;
-
-}typedef camera;
-
-
-struct
-{
-	float pitch;
-	float yaw;
-	float roll;
-} typedef eulers;
-
 const float MOVE_SPEED = 10;
 const int WIDTH = 1600;
 const int HEIGHT = 900;
@@ -48,16 +36,19 @@ float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
-camera cam;
 
 
+Camera fpsCam(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-eulers mouseAngles{ 0.0f, -90.0f, 0 };
+
 bool firstMouse = true;
-float funFloat = 1;
+
 
 int main()
 {
+	fpsCam.debug_dump();
+
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -93,10 +84,10 @@ int main()
 
 
 
-	cam.position = glm::vec3(0.0f, 0.0f, 5.0f);
-	cam.upVec = glm::vec3(0.0f, 1.0f, 0.0f);
-	cam.rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
-	cam.forwardVec = glm::vec3(0.0f, 0.0f, -1.0f);
+	//cam.position = glm::vec3(0.0f, 0.0f, 5.0f);
+	//cam.upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+	//cam.rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
+	//cam.forwardVec = glm::vec3(0.0f, 0.0f, -1.0f);
 
 
 
@@ -152,7 +143,7 @@ int main()
 	glm::mat4 cube2WorldTransform = glm::mat4(1.0f);
 	cube2WorldTransform = glm::translate(cube2WorldTransform, glm::vec3(1.0f, 0.0f, -2.0f));
 	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-	glm::mat4 glmCam = glm::lookAt(cam.position, glm::vec3(0.0f, 0.0f, 0.0f), cam.upVec);
+	//glm::mat4 glmCam = glm::lookAt(cam.position, glm::vec3(0.0f, 0.0f, 0.0f), cam.upVec);
 
 
 	glm::vec4 lightPos(0.0f, 0.3f, 3.0f, 1.0f);
@@ -175,8 +166,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		processInput(window);
 
-		updateCameraTransform(cameraTransform);
-
+		//updateCameraTransform(cameraTransform);
+		fpsCam.genCameraMatrix(cameraTransform);
 
 
 
@@ -209,7 +200,7 @@ int main()
 			glm::vec3(-1.0f, 0.5f, -1.0f),
 			glm::vec3(0.4f),
 			glm::vec3(0.7f, 0.0f, 0.0f),
-			glm::vec3(1.0f),
+			glm::vec3(0.1f),
 		};
 
 		pointLight bluePointLight
@@ -327,30 +318,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void updateCameraTransform(glm::mat4& viewMatrix)
-{
-	viewMatrix[0][0] = cam.rightVec.x;
-	viewMatrix[0][1] = cam.upVec.x;
-	viewMatrix[0][2] = -cam.forwardVec.x;
-	viewMatrix[0][3] = 0.0f;
-
-	viewMatrix[1][0] = cam.rightVec.y;
-	viewMatrix[1][1] = cam.upVec.y;
-	viewMatrix[1][2] = -cam.forwardVec.y;
-	viewMatrix[1][3] = 0.0f;
-
-	viewMatrix[2][0] = cam.rightVec.z;
-	viewMatrix[2][1] = cam.upVec.z;
-	viewMatrix[2][2] = -cam.forwardVec.z;
-	viewMatrix[2][3] = 0.0f;
-
-	viewMatrix[3][0] = glm::dot(-cam.position, cam.rightVec);
-	viewMatrix[3][1] = glm::dot(-cam.position, cam.upVec);
-	viewMatrix[3][2] = glm::dot(-cam.position, -cam.forwardVec);
-	viewMatrix[3][3] = 1.0f;
-}
-
-
 void processInput(GLFWwindow* window)
 {
 	float speed = (float)MOVE_SPEED * deltaTime;
@@ -358,20 +325,17 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, 1);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cam.position += speed * cam.forwardVec;
+		fpsCam.processKeyboardInput(CAM_DIRECTION::FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cam.position -= speed * cam.forwardVec;
+		fpsCam.processKeyboardInput(CAM_DIRECTION::BACK, speed);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cam.position -= speed * glm::normalize(-glm::cross(cam.upVec, cam.forwardVec));
+		fpsCam.processKeyboardInput(CAM_DIRECTION::LEFT, speed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cam.position += speed * glm::normalize(-glm::cross(cam.upVec, cam.forwardVec));
+		fpsCam.processKeyboardInput(CAM_DIRECTION::RIGHT, speed);
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		cam.position.y += speed;
+		fpsCam.processKeyboardInput(CAM_DIRECTION::UP, speed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		cam.position.y -= speed;
-
-
-	//cam.position.y = 0.0f;
+		fpsCam.processKeyboardInput(CAM_DIRECTION::DOWN, speed);
 
 
 }
@@ -391,29 +355,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastMouseX = xpos;
 	lastMouseY = ypos;
 
-	float sensitivity = 0.1;
-
-	x_offset *= sensitivity;
-	y_offset *= sensitivity;
-
-	mouseAngles.yaw += x_offset;
-	mouseAngles.pitch += y_offset;
-
-	if (mouseAngles.pitch > 89.0f)
-		mouseAngles.pitch = 89.0f;
-	if (mouseAngles.pitch < -89.0f)
-		mouseAngles.pitch = -89.0f;
-
-	glm::vec3 camFront;
-	camFront.x = cos(glm::radians(mouseAngles.yaw)) * cos(glm::radians(mouseAngles.pitch));
-	camFront.y = sin(glm::radians(mouseAngles.pitch));
-	camFront.z = sin(glm::radians(mouseAngles.yaw)) * cos(glm::radians(mouseAngles.pitch));
-
-	cam.forwardVec = glm::normalize(camFront);
-	cam.rightVec = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), -cam.forwardVec));	//works when -cam.fo
-	cam.upVec = glm::cross(-cam.forwardVec, cam.rightVec);
-
-
+	fpsCam.processMouseInput(x_offset, y_offset);
 }
 
 void printMat(const glm::mat4& mat, const int& size)

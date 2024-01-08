@@ -1,73 +1,98 @@
-#include "renderer/Camera.h"
-#include <iostream>
+#include "Camera.h"
+#include <stdio.h>
 
-Camera::Camera(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& up)
+Camera::Camera(const glm::vec3& _pos, const glm::vec3& _forward, const glm::vec3& _worldUp)
 {
-	c_position = pos;
-	c_forward = forward;
-	c_up = up;
-	//updateVectors();
+	position = _pos;
+	forward = _forward;
+	up = _worldUp;
+
+	yaw = -90.0f;
+	pitch = 0.0f;
+	roll = 0.0f;
+
+	updateVectors();
 }
 
 void Camera::updateVectors()
 {
-	c_forward = glm::normalize(c_forward);
-	c_right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), -c_forward));
-	c_up = glm::cross(-c_forward, c_right);
+	forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	forward.y = sin(glm::radians(pitch));
+	forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	forward = glm::normalize(forward);
+	right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), -forward));
+	up = glm::cross(-forward, right);
 }
 
-void Camera::setForward(const glm::vec3& forward)
+void Camera::processKeyboardInput(const CAM_DIRECTION& direction, const float& speed)
 {
-	c_forward = forward;
+	switch (direction)
+	{
+	case FORWARD:
+		position += speed * forward;
+		break;
+	case BACK:
+		position -= speed * forward;
+		break;
+	case LEFT:
+		position -= speed * right;
+		break;
+	case RIGHT:
+		position += speed * right;
+		break;
+	case UP:
+		position.y += speed;
+		break;
+	case DOWN:
+		position.y -= speed;
+		break;
+	}
+
+
+
+}
+void Camera::processMouseInput(const double& xOffset, const double& yOffset)
+{
+	yaw += xOffset * MOUSE_SENSITIVIY;
+	pitch += yOffset * MOUSE_SENSITIVIY;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
 	updateVectors();
-}
-
-void Camera::processInput(GLFWwindow* window, const float& speed)
-{
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		c_position += speed * c_forward;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		c_position -= speed * c_forward;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		c_position -= speed * glm::normalize(-glm::cross(c_up, c_forward));
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		c_position += speed * glm::normalize(-glm::cross(c_up, c_forward));
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		c_position.y += speed;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		c_position.y -= speed;
-
-
-
-	//std::cout << "cam pos: " << c_position.x << ' ' << c_position.y << ' ' << c_position.z << '\n';
-	//std::cout << "cam forward: " << c_forward.x << ' ' << c_forward.y << ' ' << c_forward.z << '\n';
 
 }
 
-
-
-void Camera::updateCameraTransform()
+void Camera::genCameraMatrix(glm::mat4& matrix)
 {
-	updateVectors();
+	matrix[0][0] = right.x;
+	matrix[0][1] = up.x;
+	matrix[0][2] = -forward.x;
+	matrix[0][3] = 0.0f;
 
-	c_viewMat[0][0] = c_right.x;
-	c_viewMat[0][1] = c_up.x;
-	c_viewMat[0][2] = -c_forward.x;
-	c_viewMat[0][3] = 0.0f;
+	matrix[1][0] = right.y;
+	matrix[1][1] = up.y;
+	matrix[1][2] = -forward.y;
+	matrix[1][3] = 0.0f;
 
-	c_viewMat[1][0] = c_right.y;
-	c_viewMat[1][1] = c_up.y;
-	c_viewMat[1][2] = -c_forward.y;
-	c_viewMat[1][3] = 0.0f;
+	matrix[2][0] = right.z;
+	matrix[2][1] = up.z;
+	matrix[2][2] = -forward.z;
+	matrix[2][3] = 0.0f;
 
-	c_viewMat[2][0] = c_right.z;
-	c_viewMat[2][1] = c_up.z;
-	c_viewMat[2][2] = -c_forward.z;
-	c_viewMat[2][3] = 0.0f;
+	matrix[3][0] = glm::dot(-position, right);
+	matrix[3][1] = glm::dot(-position, up);
+	matrix[3][2] = glm::dot(-position, -forward);
+	matrix[3][3] = 1.0f;
+}
 
-	c_viewMat[3][0] = glm::dot(-c_position, c_right);
-	c_viewMat[3][1] = glm::dot(-c_position, c_up);
-	c_viewMat[3][2] = glm::dot(-c_position, -c_forward);
-	c_viewMat[3][3] = 1.0f;
+void Camera::debug_dump()
+{
+	printf("Pos:\t\t%f , %f , %f\n", position.x, position.y, position.z);
+	printf("Forward:\t%f , %f , %f\n", forward.x, forward.y, forward.z);
+	printf("Right:\t\t%f , %f , %f\n", right.x, right.y, right.z);
+	printf("Up:\t\t%f , %f , %f\n", up.x, up.y, up.z);
+
 }
