@@ -12,9 +12,12 @@
 #include <vector>
 #include <iomanip>
 
+#include "renderer/Renderer.cpp"
 #include "renderer/Shader.h"
 #include "renderer/Texture2D.h"
 #include "renderer/Camera.h"
+#include "renderer/Mesh.h"
+#include "renderer/Model.h"
 
 #include "helpers/vertices.h"
 #include "helpers/lights.h"
@@ -29,14 +32,19 @@ glm::mat4 genNormalTransform(const glm::mat4& transform);
 
 const glm::mat4 Identity(1.0f);
 const float MOVE_SPEED = 10;
-const int WIDTH = 1600;
-const int HEIGHT = 900;
+const int WIDTH = 1280;
+const int HEIGHT = 720;
 
 float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
 
+namespace Space
+{
+	int a;
+	std::string s;
+}
 
 Camera fpsCam(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -46,18 +54,15 @@ bool firstMouse = true;
 
 int main()
 {
-	fpsCam.debug_dump();
 
+	fpsCam.debug_dump();
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-
-
-
+	//printf("%d", sizeof(Shader));
 
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "rank1 KR openGL window", NULL, NULL);
 	if (!window)
@@ -117,12 +122,17 @@ int main()
 	glEnableVertexAttribArray(0);
 
 
+
+	Model backpackModel("Articulated_Worm.obj");
+
+
 	Texture2D diffuse("container2.png");
 	Texture2D specular("container2_specular.png");
 		
 
 	Shader lampShader("basic_vert.glsl", "light_source_frag.glsl");
 	Shader phongShader("vert_normals.glsl", "phong_frag.glsl");
+	Shader packShader("vert_normals.glsl", "phong_color_frag.glsl");
 
 	glActiveTexture(GL_TEXTURE0);
 	diffuse.bind();
@@ -132,7 +142,7 @@ int main()
 	specular.bind();
 	phongShader.setInt("material.specular", 1);
 
-
+	
 
 	glm::mat4 cameraTransform;
 
@@ -142,7 +152,7 @@ int main()
 
 	glm::mat4 cube2WorldTransform = glm::mat4(1.0f);
 	cube2WorldTransform = glm::translate(cube2WorldTransform, glm::vec3(1.0f, 0.0f, -2.0f));
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 200.0f);
 	//glm::mat4 glmCam = glm::lookAt(cam.position, glm::vec3(0.0f, 0.0f, 0.0f), cam.upVec);
 
 
@@ -155,7 +165,7 @@ int main()
 		deltaTime = currentTime - lastFrame;
 
 		lastFrame = currentTime;
-		float fps = 1000 / deltaTime;
+		float fps = 1.0f / deltaTime;
 
 		int f = (int)fps;
 		std::ostringstream ss;
@@ -245,17 +255,17 @@ int main()
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", yellowDirLight.diffuse);
 		glBindVertexArray(lightVao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightTransform = glm::translate(scaleI, -20.0f * redDirLight.lightDir);
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", redDirLight.diffuse);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightTransform = glm::translate(scaleI, bluePointLight.lightPos);
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", bluePointLight.diffuse);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		// change light source vectors to view space
@@ -284,17 +294,35 @@ int main()
 
 
 
-		phongShader.use();
+		packShader.use();
+		packShader.setMat4("world", cubeTransform);
+		packShader.setMat4("view", cameraTransform);
+		packShader.setMat4("proj", proj);
+		packShader.setMat4("normalTransform", normalTransform);
+
+		packShader.setVec3("material.diffuse", glm::vec3(0.1f, 1.0f, 0.1f));
+		packShader.setVec3("material.specular", glm::vec3(1.0f));
+		packShader.setFloat("material.shininess", 32.0f);
+
+
+
+		packShader.setDirLight("directional_lights[0]", yellowDirLight);
+		packShader.setDirLight("directional_lights[1]", redDirLight);
+
+		packShader.setInt("NUM_DIR_LIGHTS", 2);
+
+		glm::mat4 tw = cubeTransform;
+
+		scaleI = glm::scale(scaleI, glm::vec3(0.5f));
+		cubeTransform = glm::translate(scaleI, glm::vec3(0.0f, -2.5f, -3.0f));
+
 		glBindVertexArray(vao);
-		for (int i = 0; i < 3; i++)
-		{
-			cubeTransform = glm::translate(cubeTransform, glm::vec3(0.0f, 0.0f, -1.0f));
-			normalTransform = genNormalTransform(cameraTransform * cubeTransform);
-			phongShader.setMat4("world", cubeTransform);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
 
-
+		tw = glm::translate(cubeTransform, glm::vec3(0.0f, 0.0f, -15.0f));
+		normalTransform = genNormalTransform(cameraTransform * cubeTransform);
+		packShader.setMat4("world", tw);
+		packShader.setMat4("normalTransform", normalTransform);
+		Renderer::drawSolidModel(backpackModel, packShader);
 
 
 
