@@ -1,0 +1,13 @@
+# ninja log v5
+28	224	7265784373221578	CMakeFiles/STB_IMAGE.dir/vendor/stb_image.cpp.obj	c5215ecadc3236c
+24	255	7265784373531863	CMakeFiles/hobbes-1.1.dir/src/renderer/Texture2D.cpp.obj	16496903e9acad3a
+225	261	7265784373591930	STB_IMAGE.lib	327b553368e917ee
+31	326	7265784374252517	CMakeFiles/GLAD.dir/vendor/glad.c.obj	fc37711b98999380
+326	360	7265784374572810	GLAD.lib	3928d404fae3541e
+9	383	7265784374813027	CMakeFiles/hobbes-1.1.dir/src/renderer/Camera.cpp.obj	8ad395213b5185f9
+11	473	7265784375716511	CMakeFiles/hobbes-1.1.dir/src/renderer/Mesh.cpp.obj	fa015c760f13a3f4
+21	603	7265784377017727	CMakeFiles/hobbes-1.1.dir/src/renderer/Shader.cpp.obj	5d90f781690867f9
+17	679	7265784377778466	CMakeFiles/hobbes-1.1.dir/src/renderer/Renderer.cpp.obj	3ad38b5e3b1636a7
+14	691	7265784377898576	CMakeFiles/hobbes-1.1.dir/src/renderer/Model.cpp.obj	9dd9ae7d305cfa39
+5	784	7265784378819417	CMakeFiles/hobbes-1.1.dir/src/main.cpp.obj	f5e280f907d3d764
+784	1177	7265784381545975	hobbes-1.1.exe	1923c184b86f533c
