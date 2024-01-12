@@ -12,9 +12,11 @@
 #include <string>
 #include <helpers/RootDir.h>
 #include <iostream>
+#include "renderer/Texture2D.h"
 
 struct Model
 {
+	std::vector<Texture2D> loaded_textures;
 	std::vector<Mesh> m_meshes;
 	//char* m_path;
 

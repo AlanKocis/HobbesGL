@@ -3,11 +3,13 @@
 #include <stb_image.h>
 #include <helpers/RootDir.h>
 #include <stdio.h>
+#include "renderer/Renderer.h"
 
-Texture2D::Texture2D(std::string filePath)
+Texture2D::Texture2D(std::string filePath, int type)
 {
-	glGenTextures(1, &ID);
-	glBindTexture(GL_TEXTURE_2D, ID);
+	mType = type;
+	glGenTextures(1, &mID);
+	glBindTexture(GL_TEXTURE_2D, mID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -29,19 +31,13 @@ Texture2D::Texture2D(std::string filePath)
 		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			mPath = filePath;
 			printf("called glTexImage2D on %s with GL_RGB\n", filePath.c_str());
 		}
-
-		this->width = _width;
-		this->height = _height;
-		this->nrChannels = _nrChannels;
 	}
 	else
 	{
-		printf("Failed to load texture: %s", filePath.c_str());
-		this->width = 0;
-		this->height = 0;
-		this->nrChannels = 0;
+		printf("Failed to load texture: %s\n", filePath.c_str());
 	}
 
 
@@ -51,5 +47,5 @@ Texture2D::Texture2D(std::string filePath)
 
 void Texture2D::bind()
 {
-	glBindTexture(GL_TEXTURE_2D, ID);
+	glBindTexture(GL_TEXTURE_2D, mID);
 }

@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "renderer/Texture2D.h"
 #include <glm/gtc/matrix_transform.hpp>
 //assimp
 
@@ -14,17 +15,6 @@ struct Vertex
 	glm::vec2 texCoord;
 };
 
-enum TEX_TYPES
-{
-	diffuse,
-	specular
-};
-
-struct Texture
-{
-	unsigned int id;
-	int type;	
-};
 
 
 struct Mesh
@@ -33,9 +23,9 @@ struct Mesh
 
 	std::vector<Vertex> m_vertices;
 	std::vector<uint32_t> m_indices;
-	std::vector<Texture> m_textures;
+	std::vector<Texture2D> m_textures;
 
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture>& textures);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture2D>& textures);
 	void initMesh();
 
 };

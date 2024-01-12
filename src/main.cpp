@@ -12,7 +12,7 @@
 #include <vector>
 #include <iomanip>
 
-#include "renderer/Renderer.cpp"
+#include "renderer/Renderer.h"
 #include "renderer/Shader.h"
 #include "renderer/Texture2D.h"
 #include "renderer/Camera.h"
@@ -32,8 +32,8 @@ glm::mat4 genNormalTransform(const glm::mat4& transform);
 
 const glm::mat4 Identity(1.0f);
 const float MOVE_SPEED = 10;
-const int WIDTH = 1280;
-const int HEIGHT = 720;
+const int WIDTH = 1600;
+const int HEIGHT = 900;
 
 float deltaTime = 0;
 float lastFrame = 0;
@@ -57,7 +57,10 @@ int main()
 
 	fpsCam.debug_dump();
 
+	std::cout << std::endl << sizeof(Texture2D) << std::endl;
 	glfwInit();
+
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
@@ -87,7 +90,8 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
+	glClearColor(4.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	//cam.position = glm::vec3(0.0f, 0.0f, 5.0f);
 	//cam.upVec = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -121,13 +125,13 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
+	glBindVertexArray(0);
 
+	Model backpackModel("NewSponza_Main_glTF_002.gltf");
+	Model actualPackModel("backpack.obj");
 
-	Model backpackModel("Articulated_Worm.obj");
-
-
-	Texture2D diffuse("container2.png");
-	Texture2D specular("container2_specular.png");
+	Texture2D diffuse("container2.png", 0);
+	Texture2D specular("container2_specular.png", 1);
 		
 
 	Shader lampShader("basic_vert.glsl", "light_source_frag.glsl");
@@ -313,7 +317,7 @@ int main()
 
 		glm::mat4 tw = cubeTransform;
 
-		scaleI = glm::scale(scaleI, glm::vec3(0.5f));
+		scaleI = glm::scale(scaleI, glm::vec3(5.0f));
 		cubeTransform = glm::translate(scaleI, glm::vec3(0.0f, -2.5f, -3.0f));
 
 		glBindVertexArray(vao);
@@ -324,6 +328,9 @@ int main()
 		packShader.setMat4("normalTransform", normalTransform);
 		Renderer::drawSolidModel(backpackModel, packShader);
 
+		tw = glm::translate(tw, glm::vec3(10.0f, 0.0f, 10.0f));
+		packShader.setMat4("world", tw);
+		Renderer::drawSolidModel(actualPackModel, packShader);
 
 
 		glfwSwapBuffers(window);

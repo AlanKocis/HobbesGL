@@ -2,15 +2,20 @@
 #include <stb_image.h>
 #include <string>
 
-class Texture2D
+enum TEX_TYPES
+{
+	DIFFUSE,
+	SPECULAR
+};
+
+struct Texture2D
 {
 public:
-	unsigned int ID;
-	unsigned int width;
-	unsigned int height;
-	unsigned int nrChannels;
+	unsigned int mID;
+	std::string mPath;
+	int mType;
 
-	Texture2D(std::string filePath);
+	Texture2D(std::string filePath, int type);
 	void bind();
 
 
