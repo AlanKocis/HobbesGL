@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <cmath>
 #include <stb_image.h>
 #include <glm/glm.hpp>
@@ -21,6 +25,18 @@
 
 #include "helpers/vertices.h"
 #include "helpers/lights.h"
+
+/*
+@armaanc.684
+1 year ago (edited)
+For the latest ImGui version, the files Cherno copied are located in the backends folder of imgui, also, to use glad with imgui, there will be a #include "imgui_impl_opengl3_loader.h", you need to change the entire block, including the #define and #endif to:
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#include <glad/glad.h>
+#endif
+There is no need to have the imgui_impl_opengl3_loader.h file as we are already using glad.
+
+*/
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -100,10 +116,66 @@ int main()
 	//cam.rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
 	//cam.forwardVec = glm::vec3(0.0f, 0.0f, -1.0f);
 
-
-
-
 	glEnable(GL_DEPTH_TEST);
+
+
+
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+	//io.ConfigViewportsNoAutoMerge = true;
+	//io.ConfigViewportsNoTaskBarIcon = true;
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
+	bool showDebugGui = true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	unsigned int vbo, vao, lightVao;
 
@@ -181,6 +253,22 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		processInput(window);
+
+
+		//Imgui
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::ShowDemoWindow(&showDebugGui);
+
+
+
+
+
+
+
 
 		//updateCameraTransform(cameraTransform);
 		fpsCam.genCameraMatrix(cameraTransform);
@@ -332,8 +420,18 @@ int main()
 
 		tw = glm::translate(tw, glm::vec3(10.0f, 0.0f, 10.0f));
 		packShader.setMat4("world", tw);
+
 		Renderer::drawSolidModel(actualPackModel, packShader);
 
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -345,7 +443,9 @@ int main()
 
 
 
-
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	glfwTerminate();
 	return 0;
 }
