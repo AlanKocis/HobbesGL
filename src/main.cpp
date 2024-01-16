@@ -25,6 +25,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void printMat(const glm::mat4& mat, const int& size);
 glm::mat4 genNormalTransform(const glm::mat4& transform);
 
@@ -88,6 +89,7 @@ int main()
 	// set callbacks
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glClearColor(4.1f, 0.1f, 0.1f, 1.0f);
@@ -127,7 +129,7 @@ int main()
 
 	glBindVertexArray(0);
 
-	Model backpackModel("NewSponza_Main_glTF_002.gltf");
+	Model backpackModel("Articulated_Worm.obj");
 	Model actualPackModel("backpack.obj");
 
 	Texture2D diffuse("container2.png", 0);
@@ -136,7 +138,7 @@ int main()
 
 	Shader lampShader("basic_vert.glsl", "light_source_frag.glsl");
 	Shader phongShader("vert_normals.glsl", "phong_frag.glsl");
-	Shader packShader("vert_normals.glsl", "phong_color_frag.glsl");
+	Shader packShader("vert_normals.glsl", "phong_frag.glsl");
 
 	glActiveTexture(GL_TEXTURE0);
 	diffuse.bind();
@@ -358,7 +360,10 @@ void processInput(GLFWwindow* window)
 	float speed = (float)MOVE_SPEED * deltaTime;
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, 1);
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		firstMouse = true;
+	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		fpsCam.processKeyboardInput(CAM_DIRECTION::FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -391,6 +396,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastMouseY = ypos;
 
 	fpsCam.processMouseInput(x_offset, y_offset);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 }
 
 void printMat(const glm::mat4& mat, const int& size)

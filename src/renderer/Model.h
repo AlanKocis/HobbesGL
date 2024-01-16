@@ -18,7 +18,6 @@ struct Model
 {
 	std::vector<Texture2D> loaded_textures;
 	std::vector<Mesh> m_meshes;
-	//char* m_path;
 
 	Model(std::string filePath);
 	void processNodeRecursive(aiNode* node, const aiScene* scene);

@@ -106,7 +106,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
 				skip = true;
 			}
 		}
-
+		
 		if (!skip)
 		{
 			Texture2D tex(path.C_Str(), TEX_TYPES::DIFFUSE);
