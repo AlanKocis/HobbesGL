@@ -15,13 +15,16 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <tuple>
 
 #include "renderer/Renderer.h"
 #include "renderer/Shader.h"
 #include "renderer/Texture2D.h"
 #include "renderer/Camera.h"
 #include "renderer/Mesh.h"
+#include "renderer/Object.h"
 #include "renderer/Model.h"
+#include "renderer/Scene.h"
 
 #include "helpers/vertices.h"
 #include "helpers/lights.h"
@@ -36,7 +39,6 @@ For the latest ImGui version, the files Cherno copied are located in the backend
 There is no need to have the imgui_impl_opengl3_loader.h file as we are already using glad.
 
 */
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -56,6 +58,7 @@ float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
+bool mouseMoveCam = true;
 
 namespace Space
 {
@@ -63,8 +66,7 @@ namespace Space
 	std::string s;
 }
 
-Camera fpsCam(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
+Camera FpsCam(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 bool firstMouse = true;
 
@@ -72,7 +74,7 @@ bool firstMouse = true;
 int main()
 {
 
-	fpsCam.debug_dump();
+	FpsCam.debug_dump();
 
 	std::cout << std::endl << sizeof(Texture2D) << std::endl;
 	glfwInit();
@@ -165,18 +167,6 @@ int main()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 	unsigned int vbo, vao, lightVao;
 
 
@@ -201,8 +191,11 @@ int main()
 
 	glBindVertexArray(0);
 
-	Model backpackModel("Articulated_Worm.obj");
+	Model wormModel("Articulated_Worm.obj");
 	Model actualPackModel("backpack.obj");
+
+
+
 
 	Texture2D diffuse("container2.png", 0);
 	Texture2D specular("container2_specular.png", 1);
@@ -235,6 +228,14 @@ int main()
 
 
 	glm::vec4 lightPos(0.0f, 0.3f, 3.0f, 1.0f);
+
+
+
+	//scene stuff
+	Scene HobMainScene;
+	Object backpackObject{};
+	HobMainScene.m_objects.push_back(&backpackObject);
+
 
 	//
 	while (!glfwWindowShouldClose(window))
@@ -269,13 +270,11 @@ int main()
 
 
 
-
+		//UPDATE SCENE
 		//updateCameraTransform(cameraTransform);
-		fpsCam.genCameraMatrix(cameraTransform);
-
-
-
-
+		FpsCam.genCameraMatrix(cameraTransform);
+		HobMainScene.m_view = cameraTransform;
+		HobMainScene.m_projection = proj;
 
 		// cube
 		glm::vec3 cubePos(0.0f, 0.0f, -3.0f);
@@ -283,9 +282,10 @@ int main()
 		glm::mat3 normalTransform;
 		cubeTransform = glm::translate(cubeTransform, cubePos);
 
-		//normalTransform = glm::transpose(glm::inverse(cameraTransform * cubeTransform));
+		normalTransform = glm::transpose(glm::inverse(cameraTransform * cubeTransform));
+		// 
 		//more expensive way (lol):
-		normalTransform = genNormalTransform(cameraTransform * cubeTransform);
+		//normalTransform = genNormalTransform(cameraTransform * cubeTransform);
 
 
 		//define some lights
@@ -349,17 +349,17 @@ int main()
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", yellowDirLight.diffuse);
 		glBindVertexArray(lightVao);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightTransform = glm::translate(scaleI, -20.0f * redDirLight.lightDir);
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", redDirLight.diffuse);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightTransform = glm::translate(scaleI, bluePointLight.lightPos);
 		lampShader.setMat4("world", lightTransform);
 		lampShader.setVec3("lightColor", bluePointLight.diffuse);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		// change light source vectors to view space
@@ -378,51 +378,23 @@ int main()
 		phongShader.setInt("NUM_SPOT_LIGHTS", 1);
 
 		phongShader.setFloat("material.shininess", 16.0f);
-		phongShader.setMat4("view", cameraTransform);
-		phongShader.setMat4("proj", proj);
-		phongShader.setMat4("normalTransform", normalTransform);
+		//phongShader.setMat4("view", cameraTransform);
+		//phongShader.setMat4("proj", proj);
+		//phongShader.setMat4("normalTransform", normalTransform);
+
+		HobMainScene.m_view = cameraTransform;
+		HobMainScene.m_projection = proj;
+		backpackObject.m_model = &actualPackModel;
+		backpackObject.m_world = cubeTransform;
+		backpackObject.m_shader = &phongShader;
+		//HobMainScene.m_objects.push_back(&backpackObject);
 
 
-
-		//render objects
-
-
-
-		packShader.use();
-		packShader.setMat4("world", cubeTransform);
-		packShader.setMat4("view", cameraTransform);
-		packShader.setMat4("proj", proj);
-		packShader.setMat4("normalTransform", normalTransform);
-
-		packShader.setVec3("material.diffuse", glm::vec3(0.1f, 1.0f, 0.1f));
-		packShader.setVec3("material.specular", glm::vec3(1.0f));
-		packShader.setFloat("material.shininess", 32.0f);
+		//Renderer::drawModel(&actualPackModel, &phongShader);
+		Renderer::renderScene(&HobMainScene);
 
 
-
-		packShader.setDirLight("directional_lights[0]", yellowDirLight);
-		packShader.setDirLight("directional_lights[1]", redDirLight);
-
-		packShader.setInt("NUM_DIR_LIGHTS", 2);
-
-		glm::mat4 tw = cubeTransform;
-
-		scaleI = glm::scale(scaleI, glm::vec3(5.0f));
-		cubeTransform = glm::translate(scaleI, glm::vec3(0.0f, -2.5f, -3.0f));
-
-		glBindVertexArray(vao);
-
-		tw = glm::translate(cubeTransform, glm::vec3(0.0f, 0.0f, -15.0f));
-		normalTransform = genNormalTransform(cameraTransform * cubeTransform);
-		packShader.setMat4("world", tw);
-		packShader.setMat4("normalTransform", normalTransform);
-		Renderer::drawSolidModel(backpackModel, packShader);
-
-		tw = glm::translate(tw, glm::vec3(10.0f, 0.0f, 10.0f));
-		packShader.setMat4("world", tw);
-
-		Renderer::drawSolidModel(actualPackModel, packShader);
-
+		 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -439,7 +411,7 @@ int main()
 	}
 
 
-
+		
 
 
 
@@ -462,20 +434,23 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		ImGui::EndDisabled();
+
 		firstMouse = true;
+		mouseMoveCam = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::FORWARD, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::BACK, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::BACK, speed);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::LEFT, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::LEFT, speed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::RIGHT, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::RIGHT, speed);
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::UP, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::UP, speed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		fpsCam.processKeyboardInput(CAM_DIRECTION::DOWN, speed);
+		FpsCam.processKeyboardInput(CAM_DIRECTION::DOWN, speed);
 
 
 }
@@ -495,14 +470,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastMouseX = xpos;
 	lastMouseY = ypos;
 
-	fpsCam.processMouseInput(x_offset, y_offset);
+	if(mouseMoveCam)
+	FpsCam.processMouseInput(x_offset, y_offset);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+	{
+		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			mouseMoveCam = true;
+			ImGui::BeginDisabled();
+		}
+		
+	}
 }
 
 void printMat(const glm::mat4& mat, const int& size)

@@ -36,7 +36,7 @@ void Model::processNodeRecursive(aiNode* node, const aiScene* scene)
 
 }
 
-Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
+Mesh* Model::processMesh(const aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
@@ -145,7 +145,14 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
 	
 
 
-	return Mesh(vertices, indices, textures);
+	return new Mesh(vertices, indices, textures);
 }
 
 
+Model::~Model()
+{
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		delete m_meshes[i];
+	}
+}
