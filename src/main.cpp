@@ -58,7 +58,7 @@ float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
-bool mouseMoveCam = true;
+bool disabledGUI = true;
 
 namespace Space
 {
@@ -234,7 +234,7 @@ int main()
 	//scene stuff
 	Scene HobMainScene;
 	Object backpackObject{};
-	HobMainScene.m_objects.push_back(&backpackObject);
+	HobMainScene.m_objects.push_back(&backpackObject); 
 
 
 	//
@@ -253,15 +253,18 @@ int main()
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 		processInput(window);
 
+		ImGui::BeginDisabled();
+		if (!disabledGUI)
+			ImGui::EndDisabled();
 
-		//Imgui
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
 		ImGui::ShowDemoWindow(&showDebugGui);
 
 
@@ -277,7 +280,7 @@ int main()
 		HobMainScene.m_projection = proj;
 
 		// cube
-		glm::vec3 cubePos(0.0f, 0.0f, -3.0f);
+		glm::vec3 cubePos(0.0f, 0.0f, -10.0f);
 		glm::mat4 cubeTransform(1.0f);
 		glm::mat3 normalTransform;
 		cubeTransform = glm::translate(cubeTransform, cubePos);
@@ -429,16 +432,19 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
+
+
+
 	float speed = (float)MOVE_SPEED * deltaTime;
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		ImGui::EndDisabled();
 
+		disabledGUI = false;
 		firstMouse = true;
-		mouseMoveCam = false;
 	}
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		FpsCam.processKeyboardInput(CAM_DIRECTION::FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -470,8 +476,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastMouseX = xpos;
 	lastMouseY = ypos;
 
-	if(mouseMoveCam)
-	FpsCam.processMouseInput(x_offset, y_offset);
+	if(disabledGUI)
+		FpsCam.processMouseInput(x_offset, y_offset);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -481,8 +487,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			mouseMoveCam = true;
-			ImGui::BeginDisabled();
+			disabledGUI = true;
+
 		}
 		
 	}
@@ -581,3 +587,4 @@ glm::mat4 genNormalTransform(const glm::mat4& transform)
 	int j = 1;
 	return normTransf;
 }
+
