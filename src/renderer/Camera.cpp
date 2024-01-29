@@ -3,6 +3,9 @@
 
 Camera::Camera(const glm::vec3& _pos, const glm::vec3& _forward, const glm::vec3& _worldUp)
 {
+	FOV = glm::radians(45.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)1600 / (float)900, 0.1f, 100.0f);
+
 	position = _pos;
 	forward = _forward;
 	up = _worldUp;
@@ -13,7 +16,7 @@ Camera::Camera(const glm::vec3& _pos, const glm::vec3& _forward, const glm::vec3
 
 	updateVectors();
 }
-
+ 
 void Camera::updateVectors()
 {
 	forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -22,6 +25,11 @@ void Camera::updateVectors()
 	forward = glm::normalize(forward);
 	right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), -forward));
 	up = glm::cross(-forward, right);
+}
+
+void Camera::setFOV(const float& FOV)
+{
+	this->FOV = FOV;
 }
 
 void Camera::processKeyboardInput(const CAM_DIRECTION& direction, const float& speed)
@@ -65,8 +73,9 @@ void Camera::processMouseInput(const double& xOffset, const double& yOffset)
 
 }
 
-void Camera::genCameraMatrix(glm::mat4& matrix)
+glm::mat4 Camera::genCameraMatrix()
 {
+	glm::mat4 matrix;
 	matrix[0][0] = right.x;
 	matrix[0][1] = up.x;
 	matrix[0][2] = -forward.x;
@@ -86,6 +95,8 @@ void Camera::genCameraMatrix(glm::mat4& matrix)
 	matrix[3][1] = glm::dot(-position, up);
 	matrix[3][2] = glm::dot(-position, -forward);
 	matrix[3][3] = 1.0f;
+
+	return matrix;
 }
 
 void Camera::debug_dump()

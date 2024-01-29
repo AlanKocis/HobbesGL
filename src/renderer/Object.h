@@ -1,13 +1,53 @@
 #pragma once
-#include "renderer/Model.h"
-#include "renderer/Mesh.h"
 #include "renderer/Shader.h"
-#include "glm/glm.hpp"
+#include <renderer/Model.h>
+#include <renderer/Texture2D.h>
+#include <renderer/Mesh.h>
 
-struct Object
+struct Transform3D
 {
-	Model* m_model;
-	Shader* m_shader;
-	glm::mat4 m_world;
-	char m_toBeRemoved;
+	glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 scale = glm::vec3(1.0f);
+	glm::mat4 rot = glm::mat4(1.0f);
+
+	glm::mat4 getTransformMat4() const
+	{
+		glm::mat4 t(1.0f);
+		t = glm::scale(t, scale);
+		t *= rot;
+		t = glm::translate(t, pos);
+		return t;
+	}
 };
+
+class Object
+{
+public:
+	Shader* m_shader;
+	Model* m_model;
+	Mesh* m_mesh;
+
+	Transform3D m_transform;
+
+	Object()
+	{
+		m_shader = nullptr;
+		m_model = nullptr;
+		m_mesh = nullptr;
+	}
+
+	Object(Shader* shader, Model* model)
+	{
+		m_shader = shader;
+		m_model = model;
+		m_mesh = nullptr;
+	}
+	Object(Shader* shader, Mesh* mesh)
+	{
+		m_shader = shader;
+		m_model = nullptr;
+		m_mesh = mesh;
+	}
+
+};
+

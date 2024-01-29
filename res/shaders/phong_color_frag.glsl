@@ -85,9 +85,9 @@ void main()
 		output += calculateSpotLight(spot_lights[i], FragPos, norm, viewDir);
 	}
 
-	//output = vec3(1, 0, 0);
 
     FragColor = vec4(output, 1.0);
+	FragColor = vec4(1, 0, 0, 1);
 } 
 
 
@@ -100,7 +100,7 @@ vec3 calculateDirectionalLight(dirLight light, vec3 normal, vec3 viewDir)
 
 	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(reflectDir, -viewDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * material.specular;
+		vec3 specular = vec3(0, 0, 0);
 
 	vec3 ambient = light.ambient * material.diffuse;
 
@@ -121,7 +121,7 @@ vec3 calculatePointLight(pointLight light, vec3 fragPos, vec3 normal, vec3 viewD
 
 	vec3 ambient = light.ambient * material.diffuse;
 	vec3 diffuse = light.diffuse * diff * material.diffuse;
-	vec3 specular = light.specular * spec * material.specular;
+	vec3 specular = vec3(0, 0, 0);
 
 	ambient  *= att;
     diffuse  *= att;
@@ -137,9 +137,6 @@ vec3 calculateSpotLight(spotLight light, vec3 fragPos, vec3 normal, vec3 viewDir
 	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(-viewDir, reflectDir), 0.0), 32);
 
-	if (spec == 0)
-		return vec3(1000, 1000, 1000);
-
 
 
 	float d = length(light.lightPos - fragPos);
@@ -147,7 +144,7 @@ vec3 calculateSpotLight(spotLight light, vec3 fragPos, vec3 normal, vec3 viewDir
 
 	vec3 ambient = light.ambient * material.diffuse;
 	vec3 diffuse = light.diffuse * diff * material.diffuse;
-	vec3 specular = light.specular * spec * material.specular;
+		vec3 specular = vec3(0, 0, 0);
 	ambient  *= att;
     diffuse  *= att;
     specular *= att;

@@ -16,7 +16,7 @@ struct Vertex
 };
 
 
-
+//if ebo == 0, use drawArrays
 struct Mesh
 {
 	uint32_t m_vao, m_vbo, m_ebo;
@@ -26,6 +26,7 @@ struct Mesh
 	std::vector<Texture2D> m_textures;
 
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture2D>& textures);
+	Mesh(const std::vector<float>& vertices, const Texture2D& texture);
 	void initMesh();
 
 };

@@ -46,7 +46,7 @@ in vec2 TexCoord;
 
 out vec4 FragColor;
 
-#define MAX_LIGHTS 3		//if this too big everything fuck :)
+#define MAX_LIGHTS 10		//if this too big everything fuck :)
 
 uniform Material material;
 uniform int NUM_DIR_LIGHTS;

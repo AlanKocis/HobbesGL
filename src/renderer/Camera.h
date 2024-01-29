@@ -22,7 +22,8 @@ public:
 	glm::vec3 forward;
 	glm::vec3 up;
 	glm::vec3 right;
-
+	glm::mat4 projection;
+	float FOV;
 	float pitch;
 	float yaw;
 	float roll;
@@ -31,9 +32,11 @@ public:
 
 	Camera(const glm::vec3& _pos, const glm::vec3& _forward, const glm::vec3& _worldUp);
 	void updateVectors();
+	void setFOV(const float& FOV);
 	void processKeyboardInput(const CAM_DIRECTION& direction, const float& speed);
 	void processMouseInput(const double& xOffset, const double& yOffset);
-	void genCameraMatrix(glm::mat4& matrix);
+	glm::mat4 genCameraMatrix();
+	glm::mat4 genProjectionMatrix() { return projection; }
 	void debug_dump();
 
 };

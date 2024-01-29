@@ -96,6 +96,12 @@ void Shader::setFloat(const char* uniform, const float i)
 	glUniform1f(glGetUniformLocation(programID, uniform), (float)i);
 }
 
+void Shader::setFloat(std::string& uniform, const float i)
+{
+	glUniform1f(glGetUniformLocation(programID, uniform.c_str()), (float)i);
+
+}
+
 void Shader::setVec3(const char* uniform, const glm::vec3& vec)
 {
 	glUniform3fv(glGetUniformLocation(programID, uniform), 1, glm::value_ptr(vec));
@@ -106,6 +112,15 @@ void Shader::setVec4(const char* uniform, const glm::vec4& vec)
 	glUniform4fv(glGetUniformLocation(programID, uniform), 1, glm::value_ptr(vec));
 }
 
+void Shader::setVec3(std::string& uniform, const glm::vec3& vec)
+{
+	glUniform3fv(glGetUniformLocation(programID, uniform.c_str()), 1, glm::value_ptr(vec));
+}
+
+void Shader::setVec4(std::string& uniform, const glm::vec4& vec)
+{
+	glUniform4fv(glGetUniformLocation(programID, uniform.c_str()), 1, glm::value_ptr(vec));
+}
 void Shader::setMat4(const char* uniform, const glm::mat4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(programID, uniform), 1, GL_FALSE, glm::value_ptr(matrix));
@@ -116,38 +131,13 @@ void Shader::setMat3(const char* uniform, const glm::mat3& matrix)
 	glUniformMatrix3fv(glGetUniformLocation(programID, uniform), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::setDirLight(std::string uniform, const dirLight& dirLight)
+void Shader::setMat4(std::string& uniform, const glm::mat4& matrix)
 {
-
-	setVec3((uniform + ".lightDir").c_str(), dirLight.lightDir);
-	setVec3((uniform + ".ambient").c_str(), dirLight.ambient);
-	setVec3((uniform + ".diffuse").c_str(), dirLight.diffuse);
-	setVec3((uniform + ".specular").c_str(), dirLight.specular);
+	glUniformMatrix4fv(glGetUniformLocation(programID, uniform.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::setPointLight(std::string uniform, const pointLight& pointLight)
+void Shader::setMat3(std::string& uniform, const glm::mat3& matrix)
 {
-	setVec3((uniform + ".lightPos").c_str(), pointLight.lightPos);
-	setVec3((uniform + ".ambient").c_str(), pointLight.ambient);
-	setVec3((uniform + ".diffuse").c_str(), pointLight.diffuse);
-	setVec3((uniform + ".specular").c_str(), pointLight.specular);
-	setFloat((uniform + ".attC").c_str(), pointLight.attC);
-	setFloat((uniform + ".attL").c_str(), pointLight.attL);
-	setFloat((uniform + ".attQ").c_str(), pointLight.attQ);
+	glUniformMatrix3fv(glGetUniformLocation(programID, uniform.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::setSpotLight(std::string uniform, const spotLight& spotLight)
-{
-	setVec3((uniform + ".lightPos").c_str(), spotLight.lightPos);
-	setVec3((uniform + ".direction").c_str(), spotLight.lightDir);
-	setVec3((uniform + ".ambient").c_str(), spotLight.ambient);
-	setVec3((uniform + ".diffuse").c_str(), spotLight.diffuse);
-	setVec3((uniform + ".specular").c_str(), spotLight.specular);
-
-	setFloat((uniform + ".innerRadius").c_str(), spotLight.innerRadius);
-	setFloat((uniform + ".outerRadius").c_str(), spotLight.outerRadius);
-
-	setFloat((uniform + ".attC").c_str(), spotLight.attC);
-	setFloat((uniform + ".attL").c_str(), spotLight.attL);
-	setFloat((uniform + ".attQ").c_str(), spotLight.attQ);
-}
