@@ -3,7 +3,7 @@
 DirLight::DirLight()
 {
 	m_diffuse = glm::vec3(1.0f);
-	m_ambient = glm::vec3(1.0f);
+	m_ambient = glm::vec3(0.3f);
 	m_specular = glm::vec3(1.0f);
 	m_lightDirection = glm::vec4(0.0f, -1.0f, -0.5f, 0.0f);
 }
@@ -21,7 +21,7 @@ PointLight::PointLight()
 	m_diffuse = glm::vec3(1.0f);
 	m_ambient = glm::vec3(1.0f);
 	m_specular = glm::vec3(1.0f);
-	m_lightPosition = glm::vec4(0.0f, 3.0f, 0.0f, 1.0f);
+	m_lightPosition = glm::vec4(10.0f, 3.0f, 0.0f, 1.0f);
 	m_attC = 1.0f;
 	m_attL = 0.09f;
 	m_attQ = 0.032f;
@@ -41,11 +41,11 @@ PointLight::PointLight(const glm::vec3& diff, const glm::vec3& ambient, const gl
 
 SpotLight::SpotLight()
 {
-	m_diffuse = glm::vec3(1.0f);
-	m_ambient = glm::vec3(1.0f);
+	m_diffuse = glm::vec3(4.0f);
+	m_ambient = glm::vec3(0.1f);
 	m_specular = glm::vec3(1.0f);
-	m_lightPosition = glm::vec4(0.0f, 3.0f, 0.0f, 1.0f);
-	m_lightDirection = glm::vec4(0.0f, -1.0f, -0.5f, 0.0f);
+	m_lightPosition = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
+	m_lightDirection = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
 
 	m_attC = 1.0f;
 	m_attL = 0.09f;
@@ -103,15 +103,22 @@ void PointLight::updateUniforms(Shader* shader, const int& index, const glm::mat
 
 void SpotLight::setAllUniforms(Shader* shader, const int& index, const glm::mat4& view)
 {
+	glm::vec3 pos = view * m_lightPosition;
+	glm::vec3 dir = view * m_lightDirection;
+
 	shader->use();
-	shader->setVec3("spot_lights[" + std::to_string(index) + "].lightPos", view * m_lightPosition);
-	shader->setVec3("spot_lights[" + std::to_string(index) + "].direction", view * m_lightDirection);
+	shader->setVec3("spot_lights[" + std::to_string(index) + "].lightPos", pos);
+	shader->setVec3("spot_lights[" + std::to_string(index) + "].direction", dir);
 	shader->setVec3("spot_lights[" + std::to_string(index) + "].ambient", m_ambient);
 	shader->setVec3("spot_lights[" + std::to_string(index) + "].diffuse", m_diffuse);
 	shader->setVec3("spot_lights[" + std::to_string(index) + "].specular", m_specular);
 	shader->setFloat("spot_lights[" + std::to_string(index) + "].attC", m_attC);
 	shader->setFloat("spot_lights[" + std::to_string(index) + "].attL", m_attL);
 	shader->setFloat("spot_lights[" + std::to_string(index) + "].attQ", m_attQ);
+	shader->setFloat("spot_lights[" + std::to_string(index) + "].innerRadius", glm::cos(glm::radians(12.5f)));
+	shader->setFloat("spot_lights[" + std::to_string(index) + "].outerRadius", glm::cos(glm::radians(15.5f)));
+
+
 }
 
 void SpotLight::updateUniforms(Shader* shader, const int& index, const glm::mat4& view)

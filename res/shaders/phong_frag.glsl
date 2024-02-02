@@ -150,7 +150,11 @@ vec3 calculateSpotLight(spotLight light, vec3 fragPos, vec3 normal, vec3 viewDir
     diffuse  *= att;
     specular *= att;
 
+
+
 	float theta = dot(lightDir, light.direction);
+
+
 	float intensity = clamp((theta - light.outerRadius) / (light.innerRadius - light.outerRadius), 0.0, 1.0);
 
 	ambient  *= intensity;

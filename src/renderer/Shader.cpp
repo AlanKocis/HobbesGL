@@ -141,3 +141,13 @@ void Shader::setMat3(std::string& uniform, const glm::mat3& matrix)
 	glUniformMatrix3fv(glGetUniformLocation(programID, uniform.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void Shader::reload(const std::string& vPath, const std::string& fPath)
+{
+
+
+
+
+
+
+}
+

@@ -22,11 +22,15 @@ void Renderer::drawMesh(const Mesh* mesh, Shader* shader)
 		}
 	}
 
+		
 
-	if (mesh->m_ebo != 0)
+	if (mesh->m_ebo != 0) 
 		glDrawElements(GL_TRIANGLES, mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
 	else
 		glDrawArrays(GL_TRIANGLES, 0, mesh->m_vertices.size());
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 }
 
 void Renderer::drawModel(Model* model, Shader* shader)
@@ -43,10 +47,13 @@ void Renderer::drawScene(Scene* scene)
 	int dirIndex, pointIndex, spotIndex;
 	dirIndex = pointIndex = spotIndex = 0;
 	glm::mat4 view = scene->m_currentCamera->genCameraMatrix();
+	//glm::mat4 view = scene->m_currentCamera->view;
 	glm::mat4 proj = scene->m_currentCamera->genProjectionMatrix();
 
 	for (Object* o : scene->m_objects)
 	{
+		o->m_shader->use();
+		dirIndex = pointIndex = spotIndex = 0;
 		for (Light* l : scene->m_lights)
 		{
 			switch (l->getType())
@@ -61,9 +68,10 @@ void Renderer::drawScene(Scene* scene)
 				l->setAllUniforms(o->m_shader, spotIndex++, view);
 				break;
 			}
+
+
 		}
 		 
-		o->m_shader->use();
 		o->m_shader->setInt("NUM_DIR_LIGHTS", scene->m_numDirLights);
 		o->m_shader->setInt("NUM_POINT_LIGHTS", scene->m_numPointLights);
 		o->m_shader->setInt("NUM_SPOT_LIGHTS", scene->m_numSpotLights);

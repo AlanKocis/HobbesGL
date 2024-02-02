@@ -23,6 +23,7 @@ public:
 	glm::vec3 up;
 	glm::vec3 right;
 	glm::mat4 projection;
+	glm::mat4 view;
 	float FOV;
 	float pitch;
 	float yaw;
@@ -37,6 +38,7 @@ public:
 	void processMouseInput(const double& xOffset, const double& yOffset);
 	glm::mat4 genCameraMatrix();
 	glm::mat4 genProjectionMatrix() { return projection; }
+	void updateViewMatrix();
 	void debug_dump();
 
 };

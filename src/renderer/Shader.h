@@ -27,6 +27,7 @@ public:
 	void setVec4(std::string& uniform, const glm::vec4& vec);
 	void setMat4(std::string& uniform, const glm::mat4& matrix);
 	void setMat3(std::string& uniform, const glm::mat3& matrix);
+	void reload(const std::string& vPath, const std::string& fPath);
 
 };
 

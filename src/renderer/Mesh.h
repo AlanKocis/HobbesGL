@@ -16,7 +16,6 @@ struct Vertex
 };
 
 
-//if ebo == 0, use drawArrays
 struct Mesh
 {
 	uint32_t m_vao, m_vbo, m_ebo;

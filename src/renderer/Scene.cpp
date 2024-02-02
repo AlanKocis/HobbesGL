@@ -18,15 +18,15 @@ void Scene::createAddLight(int type)
 
 	switch (type)
 	{
-	case LightType::DIR:
+	case DIR:
 		l = new DirLight();
 		m_numDirLights++;
 		break;
-	case LightType::POINT:
+	case POINT:
 		l = new PointLight();
 		m_numPointLights++;
 		break;
-	case LightType::SPOT:
+	case SPOT:
 		l = new SpotLight();
 		m_numSpotLights++;
 		break;

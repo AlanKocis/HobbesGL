@@ -1,10 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
 #include <cmath>
 #include <stb_image.h>
 #include <glm/glm.hpp>
@@ -24,9 +20,10 @@
 #include "renderer/Mesh.h"
 #include "renderer/Model.h"
 #include "renderer/Scene.h"
+#include "renderer/Light.h"
 
 #include "helpers/vertices.h"
-#include "renderer/Light.h"
+#include "helpers/GUI.h"
 
 /*
 @armaanc.684
@@ -46,7 +43,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void printMat(const glm::mat4& mat, const int& size);
 glm::mat4 genNormalTransform(const glm::mat4& transform);
 
-
+GUI gui;
 
 const glm::mat4 Identity(1.0f);
 const float MOVE_SPEED = 10;
@@ -57,7 +54,6 @@ float deltaTime = 0;
 float lastFrame = 0;
 float lastMouseX = WIDTH / 2;
 float lastMouseY = HEIGHT / 2;
-bool disabledGUI = true;
 
 namespace Space
 {
@@ -116,56 +112,42 @@ int main()
 
 
 
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-	//io.ConfigViewportsNoAutoMerge = true;
-	//io.ConfigViewportsNoTaskBarIcon = true;
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
-
-	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-	}
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
-	bool showDebugGui = true;
-
 	Scene editor_scene;
+	gui.init(&editor_scene);
 	editor_scene.m_currentCamera = &FpsCam;
 
 	Texture2D redTex("red.jpg", DIFFUSE);
 	Shader shader("vert_normals.glsl", "phong_frag.glsl");
+	Shader shaderDiffOnly("vert_normals.glsl", "phong_color_frag.glsl");
 
-	Model backpackModel("backpack.obj");
+	Model backpackModel("Articulated_Worm.obj");
 	Mesh floorMesh(CUBE_VERT_VECTOR, redTex);
 	Object backpack(&shader, &backpackModel);
-	Object floor(&shader, &floorMesh);
+	Object floor(&shaderDiffOnly, &floorMesh);
 
-	editor_scene.addObject(&shader, &backpackModel);
+	editor_scene.addObject(&shaderDiffOnly, &backpackModel);
 	editor_scene.addObject(&shader, &floorMesh);
-	editor_scene.createAddLight(DIR);
+	editor_scene.createAddLight(SPOT);
+
+	shaderDiffOnly.use();
+	shaderDiffOnly.setVec3("material.diffuse", glm::vec3(0.0f, 1.0f, 0.0f));
+
+	shaderDiffOnly.setVec3("material.specular", glm::vec3(10.0f));
+	shaderDiffOnly.setFloat("material.shininess", 16.0f);
 
 
-	floor.m_transform.scale = glm::vec3(100.0f, 0.1f, 100.0f);
-	floor.m_transform.pos = glm::vec3(0.0f, -20.0f, 0.0f);
+
+	//PointLight pointlight1(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(2.0f), glm::vec3(0.0f, 1.0f, -5.0f));
+	//editor_scene.addLight(&pointlight1);
+	editor_scene.m_objects[0]->m_transform.pos = glm::vec3(0.0f, -1.0f, -20.0f);
+	editor_scene.m_objects[0]->m_transform.scale = glm::vec3(0.1f);
+
+	editor_scene.m_objects[1]->m_transform.scale = glm::vec3(100.0f, 0.2f, 100.0f);
+	editor_scene.m_objects[1]->m_transform.pos = glm::vec3(0.0f, -20.0f, 0.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
+		glm::vec4 dir = FpsCam.genCameraMatrix() * glm::vec4(1);
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - lastFrame;
 
@@ -182,45 +164,26 @@ int main()
 		glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 		processInput(window);
-
-		ImGui::BeginDisabled();
-		if (!disabledGUI)
-			ImGui::EndDisabled();
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::ShowDemoWindow(&showDebugGui);
-
-
 
 
 		//put shit here
 
+
+
+
+		gui.update();
+
+
+
+
+
+
+
 		Renderer::drawScene(&editor_scene);
 
-
-
-
-
-
-
-
-
-
-
-
 		
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
+		gui.renderGUI();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -233,9 +196,6 @@ int main()
 
 
 
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
 	glfwTerminate();
 	return 0;
 }
@@ -256,7 +216,7 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-		disabledGUI = false;
+		gui.enableGUI();
 		firstMouse = true;
 	}
 
@@ -291,7 +251,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastMouseX = xpos;
 	lastMouseY = ypos;
 
-	if(disabledGUI)
+	if(gui.disabledGui)
 		FpsCam.processMouseInput(x_offset, y_offset);
 }
 
@@ -302,7 +262,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			disabledGUI = true;
+			gui.disableGUI();
 
 		}
 		

@@ -1,0 +1,17 @@
+
+
+
+TODOz::
+
+adding objects to scene:
+	need to pick from vertex/fragment shader? No - assume everything has normals. Choose from fragment shaders. 
+	maybe choose from a list of shaders? like globals? 
+	
+add object should be simple hopefully. 
+
+
+implement undo/redo adding objects/lights.
+
+implement arena memory allocation instead of new/delete (should actually be easy)
+
+

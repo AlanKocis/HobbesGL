@@ -70,7 +70,7 @@ void Camera::processMouseInput(const double& xOffset, const double& yOffset)
 		pitch = -89.0f;
 
 	updateVectors();
-
+	//updateViewMatrix();
 }
 
 glm::mat4 Camera::genCameraMatrix()
@@ -97,6 +97,11 @@ glm::mat4 Camera::genCameraMatrix()
 	matrix[3][3] = 1.0f;
 
 	return matrix;
+}
+
+void Camera::updateViewMatrix()
+{
+	view = glm::lookAt(position, position + forward, glm::vec3(0, 1, 0));
 }
 
 void Camera::debug_dump()

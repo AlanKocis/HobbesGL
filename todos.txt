@@ -2,10 +2,19 @@
 
 
 TODOz::
-add editor command class to abstract "editor" adding/removing lights, objects etc. 
-with undo thingy; save like previous shit and do it yknow.
-array/vector of EditorCommands in Scene maybe - just like point to that shit (iterator? yuck)
 
-redo light class : i think inheritance easier to understand here - light : public spotlight etc, then can store pointers of lights 
-in the editor command - easy to push back and etc ok ? ok
+adding objects to scene:
+	need to pick from vertex/fragment shader? No - assume everything has normals. Choose from fragment shaders. 
+	maybe choose from a list of shaders? like globals? 
+	
+add object should be simple hopefully. 
+
+
+implement undo/redo adding objects/lights.
+
+implement arena memory allocation instead of new/delete
+	(should actually be easy) literaly replace all calls to new with a call to the custom alloc()
+	
+	
+
 

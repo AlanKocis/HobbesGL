@@ -87,7 +87,6 @@ void main()
 
 
     FragColor = vec4(output, 1.0);
-	FragColor = vec4(1, 0, 0, 1);
 } 
 
 
@@ -135,7 +134,7 @@ vec3 calculateSpotLight(spotLight light, vec3 fragPos, vec3 normal, vec3 viewDir
 	float diff = max(dot(normal, -lightDir), 0.0);
 
 	vec3 reflectDir = reflect(lightDir, normal);
-	float spec = pow(max(dot(-viewDir, reflectDir), 0.0), 32);
+	float spec = pow(max(dot(-viewDir, reflectDir), 0.0), material.shininess);
 
 
 
