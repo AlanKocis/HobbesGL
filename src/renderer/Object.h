@@ -15,7 +15,7 @@ struct Transform3D
 		glm::mat4 t(1.0f);
 		t = glm::scale(t, scale);
 		t *= rot;
-		t = glm::translate(t, pos);
+		t = glm::translate(t, pos * scale);
 		return t;
 	}
 };

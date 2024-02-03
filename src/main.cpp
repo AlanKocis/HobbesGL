@@ -24,6 +24,8 @@
 
 #include "helpers/vertices.h"
 #include "helpers/GUI.h"
+//#include "renderer/EngineAssets.h"
+
 
 /*
 @armaanc.684
@@ -116,14 +118,15 @@ int main()
 	gui.init(&editor_scene);
 	editor_scene.m_currentCamera = &FpsCam;
 
-	Texture2D redTex("red.jpg", DIFFUSE);
-	Shader shader("vert_normals.glsl", "phong_frag.glsl");
-	Shader shaderDiffOnly("vert_normals.glsl", "phong_color_frag.glsl");
-
 	Model backpackModel("Articulated_Worm.obj");
-	Mesh floorMesh(CUBE_VERT_VECTOR, redTex);
-	Object backpack(&shader, &backpackModel);
-	Object floor(&shaderDiffOnly, &floorMesh);
+	Mesh floorMesh(CUBE_VERT_VECTOR, Texture2D("red.jpg", DIFFUSE));
+	//Object backpack(&DefinedShaders::phong_lighting, &backpackModel);
+	//Object floor(&shaderDiffOnly, &floorMesh);
+
+	Shader shaderDiffOnly("vert_normals.glsl", "phong_color_frag.glsl");
+	Shader shader("vert_normals.glsl", "phong_frag.glsl");
+
+
 
 	editor_scene.addObject(&shaderDiffOnly, &backpackModel);
 	editor_scene.addObject(&shader, &floorMesh);
@@ -132,7 +135,7 @@ int main()
 	shaderDiffOnly.use();
 	shaderDiffOnly.setVec3("material.diffuse", glm::vec3(0.0f, 1.0f, 0.0f));
 
-	shaderDiffOnly.setVec3("material.specular", glm::vec3(10.0f));
+	shaderDiffOnly.setVec3("material.specular", glm::vec3(100.0f));
 	shaderDiffOnly.setFloat("material.shininess", 16.0f);
 
 

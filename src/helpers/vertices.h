@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 
+
+
 float cube_pos_normal_tex[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f,

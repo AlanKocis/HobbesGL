@@ -67,8 +67,19 @@ void GUI::enableGUI()
 	disabledGui = false;
 }
 
+
 void GUI::update()
 {
+	// Helper to wire demo markers located in code to an interactive browser
+	typedef void (*ImGuiDemoMarkerCallback)(const char* file, int line, const char* section, void* user_data);
+	extern ImGuiDemoMarkerCallback      GImGuiDemoMarkerCallback;
+	extern void* GImGuiDemoMarkerCallbackUserData;
+	ImGuiDemoMarkerCallback             GImGuiDemoMarkerCallback = NULL;
+	void* GImGuiDemoMarkerCallbackUserData = NULL;
+	#define IMGUI_DEMO_MARKER(section)  do { if (GImGuiDemoMarkerCallback != NULL) GImGuiDemoMarkerCallback(__FILE__, __LINE__, section, GImGuiDemoMarkerCallbackUserData); } while (0)
+
+
+
 
 	ImGui::BeginDisabled();
 	if (!disabledGui)
@@ -81,7 +92,7 @@ void GUI::update()
 	static bool showAddLights = false;
 	ImGui::Begin("hobbes debug");
 
-
+	IMGUI_DEMO_MARKER("Lights");
 	if (ImGui::CollapsingHeader("Lights"))
 	{
 		if (ImGui::Button("add light source"))
@@ -108,14 +119,45 @@ void GUI::update()
 
 		}
 
-		showLightsDebug();
+		//showLightsDebug();
+
+		
+		if (ImGui::TreeNode("scene lights:"))
+		{
+			for (Light* light : target_scene->m_lights)
+			{
+
+				LightType t = light->getType();
+				char* s = "";
+				switch (t)
+				{
+				case DIR:
+					s = "directional light ";
+					break;
+				case SPOT:
+					s = "spot light ";
+					break;
+				case POINT:
+					s = "point light ";
+					break;
+				}
+				static bool a;
+				if (ImGui::TreeNode((void*)(light), s))
+				{
+					ImGui::Checkbox("a", &a);
+					ImGui::TreePop();
+				}
+
+			}
+
+			ImGui::TreePop();
+		}
+
+
+
+
 
 	}
-
-
-
-
-
 
 
 
@@ -126,37 +168,12 @@ void GUI::update()
 	//ImGui::ShowDemoWindow(&showGui);
 }
 
+
 void GUI::showLightsDebug()
 {
 
-	for (Light* light : target_scene->m_lights)
-	{
-		ImGui::BeginMenu("scene lights:");
-		LightType t = light->getType();
-		char* s = "";
-		switch (t)
-		{
-		case DIR:
-			s = "directional light ";
-			break;
-		case SPOT:
-			s = "spot light ";
-			break;
-		case POINT:
-			s = "point light ";
-			break;
-		}
-		static bool a;
-		if (ImGui::TreeNode(s))
-		{
-			ImGui::Checkbox("a", &a);
 
 
-		}
-
-	}
-	
-	ImGui::EndMenu();
 }
 
 GUI::~GUI()
