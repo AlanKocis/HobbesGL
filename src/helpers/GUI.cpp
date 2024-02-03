@@ -142,9 +142,32 @@ void GUI::update()
 					break;
 				}
 				static bool a;
+				void* ptr = (void*)light;
 				if (ImGui::TreeNode((void*)(light), s))
 				{
-					ImGui::Checkbox("a", &a);
+					//ImGui::Text("pos: %f, %f, %f", light->);
+					
+					switch (t)
+					{
+					case DIR:
+						ImGui::Text("Pos: %f, %f, %f", ((DirLight*)ptr)->m_lightDirection.x, ((DirLight*)ptr)->m_lightDirection.y, ((DirLight*)ptr)->m_lightDirection.z);
+						break;
+					case SPOT:
+						ImGui::Text("Dir: %f, %f, %f", ((SpotLight*)ptr)->m_lightDirection.x, ((SpotLight*)ptr)->m_lightDirection.y, ((SpotLight*)ptr)->m_lightDirection.z);
+						ImGui::Text("Pos: %f, %f, %f", ((SpotLight*)ptr)->m_lightPosition.x, ((SpotLight*)ptr)->m_lightPosition.y, ((SpotLight*)ptr)->m_lightPosition.z);
+						break;
+					case POINT:
+						ImGui::Text("Pos: %f, %f, %f", ((PointLight*)ptr)->m_lightPosition.x, ((PointLight*)ptr)->m_lightPosition.y, ((PointLight*)ptr)->m_lightPosition.z);
+						break;
+					}
+
+					ImGui::Text("Diffuse: %f, %f, %f", ((Light*)ptr)->m_diffuse.x, ((Light*)ptr)->m_diffuse.y, ((Light*)ptr)->m_diffuse.z);
+					ImGui::Text("Ambient: %f, %f, %f", ((Light*)ptr)->m_ambient.x, ((Light*)ptr)->m_ambient.y, ((Light*)ptr)->m_ambient.z);
+					ImGui::Text("Specular: %f, %f, %f", ((Light*)ptr)->m_specular.x, ((Light*)ptr)->m_specular.y, ((Light*)ptr)->m_specular.z);
+
+
+
+
 					ImGui::TreePop();
 				}
 
