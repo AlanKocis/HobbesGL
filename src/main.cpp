@@ -130,12 +130,10 @@ int main()
 
 	editor_scene.addObject(&shaderDiffOnly, &backpackModel);
 	editor_scene.addObject(&shader, &floorMesh);
-	editor_scene.createAddLight(SPOT);
-
 	shaderDiffOnly.use();
 	shaderDiffOnly.setVec3("material.diffuse", glm::vec3(0.0f, 1.0f, 0.0f));
 
-	shaderDiffOnly.setVec3("material.specular", glm::vec3(100.0f));
+	shaderDiffOnly.setVec3("material.specular", glm::vec3(10.0f));
 	shaderDiffOnly.setFloat("material.shininess", 16.0f);
 
 
@@ -184,7 +182,7 @@ int main()
 
 
 		Renderer::drawScene(&editor_scene);
-
+		editor_scene.updateScene();
 		
 		gui.renderGUI();
 

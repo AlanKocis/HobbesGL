@@ -21,7 +21,7 @@ PointLight::PointLight()
 	m_diffuse = glm::vec3(1.0f);
 	m_ambient = glm::vec3(1.0f);
 	m_specular = glm::vec3(1.0f);
-	m_lightPosition = glm::vec4(10.0f, 3.0f, 0.0f, 1.0f);
+	m_lightPosition = glm::vec4(0.0f, 3.0f, 0.0f, 1.0f);
 	m_attC = 1.0f;
 	m_attL = 0.09f;
 	m_attQ = 0.032f;

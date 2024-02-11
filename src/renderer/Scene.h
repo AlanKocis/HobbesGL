@@ -24,6 +24,7 @@ public:
 	int m_numDirLights;
 	int m_numSpotLights;
 	int m_numPointLights;
+	int m_deleteLightIndex;
 
 	Scene();
 	void createAddLight(int type);
@@ -33,5 +34,7 @@ public:
 	//void updateLightMats();
 	void addObject(Shader* shader, Model* model);
 	void addObject(Shader* shader, Mesh* mesh);
+	void setDeleteLightIndex(const int& index);
 	void freeAllObjects();
+	void updateScene();
 };
