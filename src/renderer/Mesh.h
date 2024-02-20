@@ -24,8 +24,9 @@ struct Mesh
 	std::vector<uint32_t> m_indices;
 	std::vector<Texture2D> m_textures;
 
+
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture2D>& textures);
 	Mesh(const std::vector<float>& vertices, const Texture2D& texture);
 	void initMesh();
-
+	static Mesh* genCreateQuadMesh(const float& x, const float& y, const float& z);
 };

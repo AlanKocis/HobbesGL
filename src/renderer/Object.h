@@ -49,5 +49,11 @@ public:
 		m_mesh = mesh;
 	}
 
+	//EVENTUALLY DELETE MODEL AND MESH, RN TESTING WITH HARD CODED MODEL OBJECTS (NOT POINTERS)
+	~Object()
+	{
+		//delete m_model;
+		delete m_mesh;
+	}
 };
 

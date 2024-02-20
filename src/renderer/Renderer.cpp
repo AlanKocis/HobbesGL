@@ -8,10 +8,10 @@ void Renderer::drawMesh(const Mesh* mesh, Shader* shader)
 
 	for (int i = 0; i < mesh->m_textures.size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
+ 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, mesh->m_textures[i].mID);
 
-		switch (mesh->m_textures[i].mType)
+ 		switch (mesh->m_textures[i].mType)
 		{
 		case DIFFUSE:
 			shader->setInt("material.diffuse", i);

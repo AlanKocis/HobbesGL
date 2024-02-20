@@ -85,3 +85,77 @@ void Mesh::initMesh()
 	glBindVertexArray(0);
 
 }
+
+Mesh* Mesh::genCreateQuadMesh(const float& x, const float& y, const float& z)
+{
+
+	Texture2D defaultTex("DEFAULT_TEX_WHITE.jpg", DIFFUSE);
+
+
+	std::vector<Vertex> vertices{
+		//front face
+		//pos			normal				tex
+		{glm::vec3(-x / 2, -y / 2, -z / 2), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(x / 2, -y / 2, -z / 2), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x/2, y/2, -z/2), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x/2, y/2, -z/2), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
+
+		//back face
+		{glm::vec3(-x / 2, -y / 2, -z / 2), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(x / 2, -y / 2, -z / 2), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x / 2, y / 2, -z / 2), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x / 2, y / 2, -z / 2), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+
+		//left face
+		{glm::vec3(-x / 2, -y / 2, -z / 2), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-x / 2, -y / 2, z / 2), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x / 2, y / 2, z / 2), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x / 2, y / 2, -z / 2), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+
+		//right face
+		{glm::vec3(x / 2, -y / 2, -z / 2), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},	
+		{glm::vec3(x / 2, -y / 2, z / 2), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x / 2, y / 2, z / 2), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x / 2, y / 2, -z / 2), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+
+		//top face
+		{glm::vec3(-x / 2, y / 2, -z / 2), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(x / 2, y / 2, -z / 2), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x / 2, y / 2, z / 2), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x / 2, y / 2, z / 2), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+
+		//bottom face
+		{glm::vec3(-x / 2, -y / 2, -z / 2), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(x / 2, -y / 2, -z / 2), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(x / 2, -y / 2, z / 2), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-x / 2, -y / 2, z / 2), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+
+	};
+
+	std::vector<unsigned int> indices
+	{
+		0, 1, 2,
+		2, 3, 0,
+
+		4, 5, 6,
+		6, 7, 4,
+
+		8, 9, 10,
+		10, 11, 8,
+
+		12, 13, 14,
+		14, 15, 12,
+
+		16, 17, 18,
+		18, 19, 16,
+
+		20, 21, 22,
+		22, 23, 20,
+	};
+
+	std::vector<Texture2D> textures;
+	textures.push_back(defaultTex);
+
+	return new Mesh(vertices, indices, textures);
+
+}

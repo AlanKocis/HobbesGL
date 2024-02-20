@@ -61,12 +61,12 @@ void Scene::freeAllLights()
 	}
 }
 
-void Scene::addObject(Shader* shader, Model* model)
+void Scene::createAddObject(Shader* shader, Model* model)
 {
 	m_objects.push_back(new Object(shader, model));
 }
 
-void Scene::addObject(Shader* shader, Mesh* mesh)
+void Scene::createAddObject(Shader* shader, Mesh* mesh)
 {
 	m_objects.push_back(new Object(shader, mesh));
 }
@@ -82,7 +82,7 @@ void Scene::freeAllObjects()
 {
 	for (Object* o : m_objects)
 	{
-		delete o;
+ 		delete o;
 	}
 }
 

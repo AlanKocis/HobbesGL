@@ -119,7 +119,7 @@ int main()
 	editor_scene.m_currentCamera = &FpsCam;
 
 	Model backpackModel("Articulated_Worm.obj");
-	Mesh floorMesh(CUBE_VERT_VECTOR, Texture2D("red.jpg", DIFFUSE));
+	//Mesh floorMesh(CUBE_VERT_VECTOR, Texture2D("red.jpg", DIFFUSE));
 	//Object backpack(&DefinedShaders::phong_lighting, &backpackModel);
 	//Object floor(&shaderDiffOnly, &floorMesh);
 
@@ -128,8 +128,15 @@ int main()
 
 
 
-	editor_scene.addObject(&shaderDiffOnly, &backpackModel);
-	editor_scene.addObject(&shader, &floorMesh);
+	editor_scene.createAddObject(&shader, &backpackModel);
+	editor_scene.createAddObject(&shader, Mesh::genCreateQuadMesh(1, 1, 1));
+
+	for (Mesh* m : editor_scene.m_objects[0]->m_model->m_meshes)
+	{
+		m->m_textures.push_back(Texture2D("DEFAULT_TEX_WHITE.jpg", DIFFUSE));
+	}
+	
+
 	shaderDiffOnly.use();
 	shaderDiffOnly.setVec3("material.diffuse", glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -143,8 +150,8 @@ int main()
 	editor_scene.m_objects[0]->m_transform.pos = glm::vec3(0.0f, -1.0f, -20.0f);
 	editor_scene.m_objects[0]->m_transform.scale = glm::vec3(0.1f);
 
-	editor_scene.m_objects[1]->m_transform.scale = glm::vec3(100.0f, 0.2f, 100.0f);
-	editor_scene.m_objects[1]->m_transform.pos = glm::vec3(0.0f, -20.0f, 0.0f);
+	//editor_scene.m_objects[1]->m_transform.scale = glm::vec3(100.0f, 0.2f, 100.0f);
+	//editor_scene.m_objects[1]->m_transform.pos = glm::vec3(0.0f, -20.0f, 0.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -162,7 +169,11 @@ int main()
 
 		glm::vec3 skyColor(76, 64, 142);
 		skyColor = glm::normalize(skyColor);
-		glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
+		//glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);		
+		
+		glClearColor(0.0F, 0.0F, 0.0f, 1.0f);
+
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		processInput(window);
@@ -172,6 +183,7 @@ int main()
 
 
 
+		editor_scene.updateScene();
 
 		gui.update();
 
@@ -181,9 +193,7 @@ int main()
 
 
 
-		Renderer::drawScene(&editor_scene);
-		editor_scene.updateScene();
-		
+		Renderer::drawScene(&editor_scene);		
 		gui.renderGUI();
 
 		glfwSwapBuffers(window);

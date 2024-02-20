@@ -250,7 +250,7 @@ void GUI::update()
 					{
 						target_scene->setDeleteLightIndex(lightIndex);
 					}
-						
+					
 
 
 

@@ -32,8 +32,8 @@ public:
 	void freeAllLights();
 	//void setLightUniforms(Light* light);
 	//void updateLightMats();
-	void addObject(Shader* shader, Model* model);
-	void addObject(Shader* shader, Mesh* mesh);
+	void createAddObject(Shader* shader, Model* model);
+	void createAddObject(Shader* shader, Mesh* mesh);
 	void setDeleteLightIndex(const int& index);
 	void freeAllObjects();
 	void updateScene();
