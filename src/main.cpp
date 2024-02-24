@@ -48,7 +48,7 @@ glm::mat4 genNormalTransform(const glm::mat4& transform);
 GUI gui;
 
 const glm::mat4 Identity(1.0f);
-const float MOVE_SPEED = 10;
+const float MOVE_SPEED = 4;
 const int WIDTH = 1600;
 const int HEIGHT = 900;
 
@@ -126,32 +126,17 @@ int main()
 	Shader shaderDiffOnly("vert_normals.glsl", "phong_color_frag.glsl");
 	Shader shader("vert_normals.glsl", "phong_frag.glsl");
 
-
-
-	editor_scene.createAddObject(&shader, &backpackModel);
+	editor_scene.createAddObject(&shader, Mesh::genCreateQuadMesh(5, 0.0001, 5));
 	editor_scene.createAddObject(&shader, Mesh::genCreateQuadMesh(1, 1, 1));
+	editor_scene.createAddLight(LightType::DIR);
+	editor_scene.m_lights[0]->m_specular = glm::vec3(0.0f, 0.0f, 0.0f);
+	editor_scene.m_lights[0]->m_diffuse = glm::vec3(0.5f);
 
-	for (Mesh* m : editor_scene.m_objects[0]->m_model->m_meshes)
-	{
-		m->m_textures.push_back(Texture2D("DEFAULT_TEX_WHITE.jpg", DIFFUSE));
-	}
+
+
+	editor_scene.m_objects[0]->m_transform.pos.y = -0.5f;
 	
 
-	shaderDiffOnly.use();
-	shaderDiffOnly.setVec3("material.diffuse", glm::vec3(0.0f, 1.0f, 0.0f));
-
-	shaderDiffOnly.setVec3("material.specular", glm::vec3(10.0f));
-	shaderDiffOnly.setFloat("material.shininess", 16.0f);
-
-
-
-	//PointLight pointlight1(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(2.0f), glm::vec3(0.0f, 1.0f, -5.0f));
-	//editor_scene.addLight(&pointlight1);
-	editor_scene.m_objects[0]->m_transform.pos = glm::vec3(0.0f, -1.0f, -20.0f);
-	editor_scene.m_objects[0]->m_transform.scale = glm::vec3(0.1f);
-
-	//editor_scene.m_objects[1]->m_transform.scale = glm::vec3(100.0f, 0.2f, 100.0f);
-	//editor_scene.m_objects[1]->m_transform.pos = glm::vec3(0.0f, -20.0f, 0.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -171,7 +156,7 @@ int main()
 		skyColor = glm::normalize(skyColor);
 		//glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);		
 		
-		glClearColor(0.0F, 0.0F, 0.0f, 1.0f);
+		glClearColor(0.1F, 0.1F, 0.1f, 1.0f);
 
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

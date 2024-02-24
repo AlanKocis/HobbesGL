@@ -9,6 +9,7 @@
 #include "renderer/Light.h"
 #include "renderer/Object.h"
 #include "renderer/Camera.h"
+#include "renderer/Shader.h"
 
 const int MAX_LIGHTS = 10;
 
@@ -25,6 +26,7 @@ public:
 	int m_numSpotLights;
 	int m_numPointLights;
 	int m_deleteLightIndex;
+	Shader m_LightingShader;
 
 	Scene();
 	void createAddLight(int type);

@@ -10,6 +10,7 @@ Scene::Scene()
 	m_lights.reserve(16);
 	m_objects.reserve(1000);
 	m_currentCamera = nullptr;
+	m_LightingShader = Shader("vert_normals.glsl", "phong_frag.glsl");
 
 }
 

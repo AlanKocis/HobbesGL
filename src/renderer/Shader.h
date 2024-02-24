@@ -14,6 +14,7 @@ private:
 	unsigned int programID;
 public:
 	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader() {}
 	const unsigned int getID();
 	void use();
 	void setInt(const char* uniform, const int i);

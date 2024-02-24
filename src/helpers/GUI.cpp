@@ -1,6 +1,8 @@
 #include "helpers/GUI.h"
 #include <vector>
 
+
+
 void setEditVec(float* v, glm::vec3* vec)
 {
 	v[0] = vec->x;
@@ -112,29 +114,7 @@ void GUI::update()
 	IMGUI_DEMO_MARKER("Lights");
 	if (ImGui::CollapsingHeader("Lights"))
 	{
-		if (ImGui::Button("add light source"))
-		{
-			showAddLights = true;
-		}
-		if (showAddLights)
-		{
-			if (ImGui::Button("directional"))
-			{
-				target_scene->createAddLight(DIR);
-				showAddLights = false;
-			}
-			if (ImGui::Button("point"))
-			{
-				target_scene->createAddLight(POINT);
-				showAddLights = false;
-			}
-			if (ImGui::Button("spot"))
-			{
-				target_scene->createAddLight(SPOT);
-				showAddLights = false;
-			}
-
-		}
+		
 
 		//showLightsDebug();
 
@@ -293,16 +273,75 @@ void GUI::update()
 
 		}
 
+		if (ImGui::Button("add light source"))
+		{
+			showAddLights = true;
+		}
+		if (showAddLights)
+		{
+			ImGui::Begin("Add light source", &showAddLights);
+			if (ImGui::Button("directional"))
+			{
+				target_scene->createAddLight(DIR);
+				showAddLights = false;
+			}
+			if (ImGui::Button("point"))
+			{
+				target_scene->createAddLight(POINT);
+				showAddLights = false;
+			}
+			if (ImGui::Button("spot"))
+			{
+				target_scene->createAddLight(SPOT);
+				showAddLights = false;
+			}
+	
 
 
-
-
+			ImGui::End();
+		}
 
 	}
 
 
+	static float quadVec[3] = { 0.0f, 0.0f, 0.0f };
+	static bool showAddObject = false;
+	//OBJECTS
 	if (ImGui::CollapsingHeader("Objects"))
 	{
+
+		if (!showAddObject)
+			if (ImGui::Button("Add"))
+			{
+				showAddObject = true;
+
+			}
+
+		if (showAddObject)
+		{
+			ImGui::Begin("Add Object", &showAddObject);
+			if (ImGui::TreeNode("Quad"))
+			{
+
+				ImGui::Text("x\t\ty\t\tz");
+				ImGui::InputFloat3("", quadVec);
+				if (ImGui::Button("Add"))
+				{
+
+					this->target_scene->createAddObject(&this->target_scene->m_LightingShader, Mesh::genCreateQuadMesh(quadVec[0], quadVec[1], quadVec[2]));
+
+
+					showAddObject = false;
+				}
+
+			}
+
+
+
+			ImGui::End();
+		}
+
+
 
 
 	}
