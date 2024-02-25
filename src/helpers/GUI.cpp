@@ -109,6 +109,13 @@ void GUI::update()
 
 
 	static bool showAddLights = false;
+	static bool showEditVec = false;
+	static void* editVecPtr = nullptr;
+	static void* editObjectPtr = nullptr;
+
+	static float vecDigits[3]{ 0.0f, 0.0f, 0.0f };
+
+
 	ImGui::Begin("hobbes debug");
 
 	IMGUI_DEMO_MARKER("Lights");
@@ -119,9 +126,7 @@ void GUI::update()
 		//showLightsDebug();
 
 		
-		static void* editLightVecPtr = nullptr;
-		static bool showEditVec = false;
-		static float vecDigits[3]{ 0.0f, 0.0f, 0.0f };
+
 
 		if (ImGui::TreeNode("scene lights:"))
 		{
@@ -160,9 +165,9 @@ void GUI::update()
 						ImGui::SameLine();
 						if (ImGui::Button("Edit#1"))
 						{
-							editLightVecPtr = &((DirLight*)ptr)->m_lightDirection;
+							editVecPtr = &((DirLight*)ptr)->m_lightDirection;
 							showEditVec = true;
-							setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 						}
 
 
@@ -173,18 +178,18 @@ void GUI::update()
 						if (ImGui::Button("Edit##2"))
 						{
 							printf("bb\n");
-							editLightVecPtr = &((SpotLight*)ptr)->m_lightDirection;
+							editVecPtr = &((SpotLight*)ptr)->m_lightDirection;
 							showEditVec = true;
-							setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 						}
 						ImGui::Text("Pos: %.3f, %.3f, %.3f", ((SpotLight*)ptr)->m_lightPosition.x, ((SpotLight*)ptr)->m_lightPosition.y, ((SpotLight*)ptr)->m_lightPosition.z);
 						ImGui::SameLine();
 						if (ImGui::Button("Edit##3"))
 						{
 							printf("aa\n");
-							editLightVecPtr = &((SpotLight*)ptr)->m_lightPosition;
+							editVecPtr = &((SpotLight*)ptr)->m_lightPosition;
 							showEditVec = true;
-							setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 
 						}
 						break;
@@ -193,9 +198,9 @@ void GUI::update()
 						ImGui::SameLine();
 						if (ImGui::Button("Edit##4"))
 						{
-							editLightVecPtr = &((PointLight*)ptr)->m_lightPosition;
+							editVecPtr = &((PointLight*)ptr)->m_lightPosition;
 							showEditVec = true;
-							setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 						}
 						break;
 					}
@@ -204,26 +209,26 @@ void GUI::update()
 					ImGui::SameLine();
 					if (ImGui::Button("Edit##5"))
 					{
-						editLightVecPtr = &((Light*)ptr)->m_diffuse;
+						editVecPtr = &((Light*)ptr)->m_diffuse;
 						showEditVec = true;
-						setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+						setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 					}
 					ImGui::Text("Ambient: %.3f, %.3f, %.3f", ((Light*)ptr)->m_ambient.x, ((Light*)ptr)->m_ambient.y, ((Light*)ptr)->m_ambient.z);
 					ImGui::SameLine();
 					if (ImGui::Button("Edit##6"))
 					{
-						editLightVecPtr = &((Light*)ptr)->m_ambient;
+						editVecPtr = &((Light*)ptr)->m_ambient;
 						showEditVec = true;
-						setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+						setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 
 					}
 					ImGui::Text("Specular: %.3f, %.3f, %.3f", ((Light*)ptr)->m_specular.x, ((Light*)ptr)->m_specular.y, ((Light*)ptr)->m_specular.z);
 					ImGui::SameLine();
 					if (ImGui::Button("Edit##7"))
 					{
-						editLightVecPtr = &((Light*)ptr)->m_specular;
+						editVecPtr = &((Light*)ptr)->m_specular;
 						showEditVec = true;
-						setEditVec(vecDigits, (glm::vec3*)editLightVecPtr);
+						setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 					}
 
 					if (ImGui::Button("delete light"))
@@ -248,30 +253,6 @@ void GUI::update()
 		}
 
 
-		if (showEditVec)
-		{
-			glm::vec4* editVector = (glm::vec4*)editLightVecPtr;
-
-
-
-			printf("edit true\n");
-			ImGui::InputFloat3("input float3", vecDigits);
-
-			if (ImGui::Button("set"))
-			{
-				editVector->x = vecDigits[0];
-				editVector->y = vecDigits[1];
-				editVector->z = vecDigits[2];
-
-
-				showEditVec = false;
-				vecDigits[0] = 0.0f;
-				vecDigits[1] = 0.0f;
-				vecDigits[2] = 0.0f;
-
-			}
-
-		}
 
 		if (ImGui::Button("add light source"))
 		{
@@ -309,6 +290,46 @@ void GUI::update()
 	//OBJECTS
 	if (ImGui::CollapsingHeader("Objects"))
 	{
+
+		if (ImGui::TreeNode("Scene Objects"))
+		{
+
+			for (Object* object : target_scene->m_objects)
+			{
+				if (ImGui::TreeNode((void*)(object), "object"))
+				{
+					ImGui::Text("Pos: %.3f, %.3f, %.3f", object->m_transform.pos.x, object->m_transform.pos.y, object->m_transform.pos.z);
+					ImGui::SameLine();
+					if (ImGui::Button("EditObjPos"))
+					{
+						editVecPtr = &object->m_transform.pos;
+						showEditVec = true;
+						setEditVec(vecDigits, (glm::vec3*)editVecPtr);
+					}
+				}
+
+
+
+
+			}
+
+
+
+
+
+
+
+
+
+		}
+
+
+
+
+
+
+
+
 
 		if (!showAddObject)
 			if (ImGui::Button("Add"))
@@ -348,6 +369,32 @@ void GUI::update()
 
 
 		
+
+	if (showEditVec)
+	{
+		glm::vec4* editVector = (glm::vec4*)editVecPtr;
+
+
+
+		printf("edit true\n");
+		ImGui::InputFloat3("input float3", vecDigits);
+
+		if (ImGui::Button("set"))
+		{
+			editVector->x = vecDigits[0];
+			editVector->y = vecDigits[1];
+			editVector->z = vecDigits[2];
+
+
+			showEditVec = false;
+			vecDigits[0] = 0.0f;
+			vecDigits[1] = 0.0f;
+			vecDigits[2] = 0.0f;
+
+		}
+
+	}
+
 
 	ImGui::End();
 
