@@ -156,7 +156,7 @@ void GUI::update()
 					switch (t)
 					{
 					case DIR:
-						ImGui::Text("Pos: %.3f, %.3f, %.3f", ((DirLight*)ptr)->m_lightDirection.x, ((DirLight*)ptr)->m_lightDirection.y, ((DirLight*)ptr)->m_lightDirection.z);
+						ImGui::Text("Dir: %.3f, %.3f, %.3f", ((DirLight*)ptr)->m_lightDirection.x, ((DirLight*)ptr)->m_lightDirection.y, ((DirLight*)ptr)->m_lightDirection.z);
 						ImGui::SameLine();
 						if (ImGui::Button("Edit#1"))
 						{
