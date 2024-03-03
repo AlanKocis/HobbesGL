@@ -258,6 +258,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			//firstMouse = true;
 			gui.disableGUI();
 
 		}

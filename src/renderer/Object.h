@@ -26,6 +26,7 @@ public:
 	Shader* m_shader;
 	Model* m_model;
 	Mesh* m_mesh;
+	glm::vec3 m_matColor;
 
 	Transform3D m_transform;
 
@@ -34,6 +35,7 @@ public:
 		m_shader = nullptr;
 		m_model = nullptr;
 		m_mesh = nullptr;
+		m_matColor = glm::vec3(1, 1, 1);
 	}
 
 	Object(Shader* shader, Model* model)
@@ -41,12 +43,16 @@ public:
 		m_shader = shader;
 		m_model = model;
 		m_mesh = nullptr;
+		m_matColor = glm::vec3(1, 1, 1);
+
 	}
 	Object(Shader* shader, Mesh* mesh)
 	{
 		m_shader = shader;
 		m_model = nullptr;
 		m_mesh = mesh;
+		m_matColor = glm::vec3(1, 1, 1);
+
 	}
 
 	//EVENTUALLY DELETE MODEL AND MESH, RN TESTING WITH HARD CODED MODEL OBJECTS (NOT POINTERS)

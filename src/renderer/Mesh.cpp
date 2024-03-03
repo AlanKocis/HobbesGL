@@ -89,7 +89,7 @@ void Mesh::initMesh()
 Mesh* Mesh::genCreateQuadMesh(const float& x, const float& y, const float& z)
 {
 
-	Texture2D defaultTex("DEFAULT_TEX_WHITE.jpg", DIFFUSE);
+	//Texture2D defaultTex("DEFAULT_TEX_WHITE.jpg", DIFFUSE);
 
 
 	std::vector<Vertex> vertices{
@@ -153,9 +153,9 @@ Mesh* Mesh::genCreateQuadMesh(const float& x, const float& y, const float& z)
 		22, 23, 20,
 	};
 
-	std::vector<Texture2D> textures;
-	textures.push_back(defaultTex);
+	//std::vector<Texture2D> textures;
+	//textures.push_back(defaultTex);
 
-	return new Mesh(vertices, indices, textures);
+	return new Mesh(vertices, indices, {});
 
 }

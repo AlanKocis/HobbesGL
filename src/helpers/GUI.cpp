@@ -177,7 +177,7 @@ void GUI::update()
 						ImGui::SameLine();
 						if (ImGui::Button("Edit##2"))
 						{
-							printf("bb\n");
+							//printf("bb\n");
 							editVecPtr = &((SpotLight*)ptr)->m_lightDirection;
 							showEditVec = true;
 							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
@@ -186,7 +186,7 @@ void GUI::update()
 						ImGui::SameLine();
 						if (ImGui::Button("Edit##3"))
 						{
-							printf("aa\n");
+							//printf("aa\n");
 							editVecPtr = &((SpotLight*)ptr)->m_lightPosition;
 							showEditVec = true;
 							setEditVec(vecDigits, (glm::vec3*)editVecPtr);
@@ -306,6 +306,10 @@ void GUI::update()
 						showEditVec = true;
 						setEditVec(vecDigits, (glm::vec3*)editVecPtr);
 					}
+					
+
+					if (!this->disabledGui)
+						ImGui::ColorPicker4("color", &object->m_matColor.x);
 				}
 
 
@@ -376,7 +380,7 @@ void GUI::update()
 
 
 
-		printf("edit true\n");
+		//printf("edit true\n");
 		ImGui::InputFloat3("input float3", vecDigits);
 
 		if (ImGui::Button("set"))

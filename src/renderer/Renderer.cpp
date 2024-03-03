@@ -71,7 +71,7 @@ void Renderer::drawScene(Scene* scene)
 
 
 		}
-		 
+		o->m_shader->setVec3("material.materialColor", o->m_matColor);
 		o->m_shader->setInt("NUM_DIR_LIGHTS", scene->m_numDirLights);
 		o->m_shader->setInt("NUM_POINT_LIGHTS", scene->m_numPointLights);
 		o->m_shader->setInt("NUM_SPOT_LIGHTS", scene->m_numSpotLights);
