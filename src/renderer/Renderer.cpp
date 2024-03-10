@@ -50,11 +50,11 @@ void Renderer::drawScene(Scene* scene)
 	//glm::mat4 view = scene->m_currentCamera->view;
 	glm::mat4 proj = scene->m_currentCamera->genProjectionMatrix();
 
-	for (Object* o : scene->m_objects)
+	for (Object*& o : scene->m_objects)
 	{
 		o->m_shader->use();
 		dirIndex = pointIndex = spotIndex = 0;
-		for (Light* l : scene->m_lights)
+		for (Light*& l : scene->m_lights)
 		{
 			switch (l->getType())
 			{

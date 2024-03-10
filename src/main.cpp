@@ -25,7 +25,7 @@
 #include "helpers/vertices.h"
 #include "helpers/GUI.h"
 //#include "renderer/EngineAssets.h"
-
+#include "helpers/Pool.h"
 
 /*
 @armaanc.684
@@ -46,7 +46,6 @@ void printMat(const glm::mat4& mat, const int& size);
 glm::mat4 genNormalTransform(const glm::mat4& transform);
 
 GUI gui;
-
 const glm::mat4 Identity(1.0f);
 const float MOVE_SPEED = 4;
 const int WIDTH = 1600;
@@ -137,6 +136,11 @@ int main()
 	editor_scene.m_objects[0]->m_transform.pos.y = -0.5f;
 	
 
+	//Pool memPool1(100 * sizeof(char*));
+
+	//int* i = (int*)(memPool1.alloc(sizeof(int), DEFAULT_ALLIGNMENT));
+	//*i = 10;
+	//std::cout << *i <<'\n';
 
 	while (!glfwWindowShouldClose(window))
 	{

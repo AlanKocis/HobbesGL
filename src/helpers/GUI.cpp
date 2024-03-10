@@ -310,6 +310,9 @@ void GUI::update()
 
 					if (!this->disabledGui)
 						ImGui::ColorPicker4("color", &object->m_matColor.x);
+
+					ImGui::TreePop();
+
 				}
 
 
@@ -323,6 +326,7 @@ void GUI::update()
 
 
 
+			ImGui::TreePop();
 
 
 		}

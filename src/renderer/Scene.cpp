@@ -1,14 +1,17 @@
 #include "renderer/Scene.h"
+#define NDEBUG
 
 Scene::Scene()
+	: m_lightPool(1000 * sizeof(Light)), m_objectPool(1000 * sizeof(Object))
 {
 	m_numDirLights = 0;
 	m_numPointLights = 0;
 	m_numSpotLights = 0;
 	m_deleteLightIndex = -1;
 
-	m_lights.reserve(16);
+	m_lights.reserve(1000);
 	m_objects.reserve(1000);
+
 	m_currentCamera = nullptr;
 	m_LightingShader = Shader("vert_normals.glsl", "phong_frag.glsl");
 
@@ -16,30 +19,41 @@ Scene::Scene()
 
 void Scene::createAddLight(int type)
 {
-	Light* l;
 
+	Light* l;
+	void* address;
 	switch (type)
 	{
 	case DIR:
-		l = new DirLight();
+		address = m_lightPool.alloc(sizeof(DirLight), DEFAULT_ALLIGNMENT);
+		assert(address != NULL);
+		l = new(address) DirLight();
 		m_numDirLights++;
 		break;
 	case POINT:
-		l = new PointLight();
+		address = m_lightPool.alloc(sizeof(PointLight), DEFAULT_ALLIGNMENT);
+		assert(address != NULL);
+		l = new(address) PointLight();
 		m_numPointLights++;
 		break;
 	case SPOT:
-		l = new SpotLight();
+		address = m_lightPool.alloc(sizeof(SpotLight), DEFAULT_ALLIGNMENT);
+		assert(address != NULL);
+		l = new(address) SpotLight();
 		m_numSpotLights++;
 		break;
 	}
-
 	m_lights.push_back(l);
 }
 
-void Scene::addLight(Light* light)
+void Scene::addLight(Light*& light)
 {
-	m_lights.push_back(light);
+	Light* l = (Light*)m_lightPool.alloc(sizeof(Light), DEFAULT_ALLIGNMENT);
+	*l = *light;
+
+	assert(l);
+
+	m_lights.push_back(l);
 	switch (light->getType())
 	{
 	case DIR:
@@ -56,20 +70,29 @@ void Scene::addLight(Light* light)
 
 void Scene::freeAllLights()
 {
-	for (Light* l : m_lights)
-	{
-		delete l;
-	}
+
+	free(m_lightPool.buffer);
+
+	//for (Light* l : m_lights)
+	//{
+	//	delete l;
+	//}
 }
 
 void Scene::createAddObject(Shader* shader, Model* model)
 {
-	m_objects.push_back(new Object(shader, model));
+	void* address = m_objectPool.alloc(sizeof(Object), DEFAULT_ALLIGNMENT);
+	assert(address);
+	Object* o = new(address) Object(shader, model);
+	m_objects.push_back(o);
 }
 
 void Scene::createAddObject(Shader* shader, Mesh* mesh)
 {
-	m_objects.push_back(new Object(shader, mesh));
+	void* address = m_objectPool.alloc(sizeof(Object), DEFAULT_ALLIGNMENT);
+	assert(address);
+	Object* o = new(address) Object(shader, mesh);
+	m_objects.push_back(o);
 }
 
 void Scene::setDeleteLightIndex(const int& index)
@@ -81,10 +104,12 @@ void Scene::setDeleteLightIndex(const int& index)
 
 void Scene::freeAllObjects()
 {
-	for (Object* o : m_objects)
-	{
- 		delete o;
-	}
+	free(m_objectPool.buffer);
+
+	//for (Object* o : m_objects)
+	//{
+ //		delete o;
+	//}
 }
 
 void Scene::updateScene()
@@ -110,7 +135,7 @@ void Scene::updateScene()
 				m_numPointLights--;
 				break;
 			}
-			delete m_lights[i];
+			//delete m_lights[i];
 			(m_lights.begin() + i) = m_lights.erase(m_lights.begin() + i);
 			break;
 		}
