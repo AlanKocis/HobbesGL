@@ -296,6 +296,7 @@ void GUI::update()
 
 			for (Object* object : target_scene->m_objects)
 			{
+				int objectIndex = 0;
 				if (ImGui::TreeNode((void*)(object), "object"))
 				{
 					ImGui::Text("Pos: %.3f, %.3f, %.3f", object->m_transform.pos.x, object->m_transform.pos.y, object->m_transform.pos.z);
@@ -311,13 +312,19 @@ void GUI::update()
 					if (!this->disabledGui)
 						ImGui::ColorPicker4("color", &object->m_matColor.x);
 
+					if (ImGui::Button("delete object"))
+					{
+						target_scene->setDeleteObjIndex(objectIndex);
+					}
+
+
 					ImGui::TreePop();
 
 				}
 
 
 
-
+				objectIndex++;
 			}
 
 

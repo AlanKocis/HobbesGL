@@ -363,23 +363,3 @@ glm::mat4 genNormalTransform(const glm::mat4& transform)
 	int j = 1;
 	return normTransf;
 }
-
-struct ArenaPool
-{
-	unsigned char* buff;
-	size_t offset;
-	size_t buffer_size;
-};
-
-void* arena_alloc(struct ArenaPool* arena, size_t size)
-{
-	if (arena->offset + size <= arena->buffer_size)
-	{
-		void* ptr = (arena->buff + arena->offset);
-		arena->offset += size;
-		memset(ptr, 0, size);
-		return ptr;
-	}
-	else
-		return NULL;
-}

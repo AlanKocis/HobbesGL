@@ -8,7 +8,7 @@ Scene::Scene()
 	m_numPointLights = 0;
 	m_numSpotLights = 0;
 	m_deleteLightIndex = -1;
-
+	m_deleteObjIndex = -1;
 	m_lights.reserve(1000);
 	m_objects.reserve(1000);
 
@@ -100,6 +100,10 @@ void Scene::setDeleteLightIndex(const int& index)
 	m_deleteLightIndex = index;
 }
 
+void Scene::setDeleteObjIndex(const int& index)
+{
+	m_deleteObjIndex = index;
+}
 
 
 void Scene::freeAllObjects()
@@ -115,33 +119,73 @@ void Scene::freeAllObjects()
 void Scene::updateScene()
 {
 
-	if (m_deleteLightIndex < 0)
-		return;
-
-	for (int i = 0; i < m_lights.size(); i++)
+	if (m_deleteLightIndex > -1)
 	{
-		if (i == m_deleteLightIndex)
+		for (int i = 0; i < m_lights.size(); i++)
 		{
-			LightType type = m_lights[i]->getType();
-			switch (type)
+			if (i == m_deleteLightIndex)
 			{
-			case DIR:
-				m_numDirLights--;
-				break;
-			case SPOT:
-				m_numSpotLights--;
-				break;
-			case POINT:
-				m_numPointLights--;
+				LightType type = m_lights[i]->getType();
+				switch (type)
+				{
+				case DIR:
+					m_numDirLights--;
+					break;
+				case SPOT:
+					m_numSpotLights--;
+					break;
+				case POINT:
+					m_numPointLights--;
+					break;
+				}
+				//delete m_lights[i];
+				(m_lights.begin() + i) = m_lights.erase(m_lights.begin() + i);
 				break;
 			}
-			//delete m_lights[i];
-			(m_lights.begin() + i) = m_lights.erase(m_lights.begin() + i);
-			break;
+		}
+	}
+
+	if (m_deleteLightIndex > -1)
+	{
+		for (int i = 0; i < m_lights.size(); i++)
+		{
+			if (i == m_deleteLightIndex)
+			{
+				LightType type = m_lights[i]->getType();
+				switch (type)
+				{
+				case DIR:
+					m_numDirLights--;
+					break;
+				case SPOT:
+					m_numSpotLights--;
+					break;
+				case POINT:
+					m_numPointLights--;
+					break;
+				}
+				//delete m_lights[i];
+				(m_lights.begin() + i) = m_lights.erase(m_lights.begin() + i);
+				break;
+			}
+		}
+	}
+
+	if (m_deleteObjIndex > -1)
+	{
+		for (int i = 0; i < m_objects.size(); i++)
+		{
+			if (i == m_deleteObjIndex)
+			{
+				//delete m_lights[i];
+				(m_objects.begin() + i) = m_objects.erase(m_objects.begin() + i);
+				break;
+			}
 		}
 	}
 
 	//m_lights.pop_back();
+	m_deleteObjIndex = -1;
 	m_deleteLightIndex = -1;
 }
 
